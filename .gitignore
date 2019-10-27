@@ -1,2 +1,4 @@
 # 忽略 vscode history 插件自动生成的文件夹
-.history/
+.history
+node_modules
+.idea

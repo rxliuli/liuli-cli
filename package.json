@@ -1,0 +1,30 @@
+{
+  "name": "liuli-cli",
+  "version": "0.1.0",
+  "description": "一个 JavaScript/TypeScript SDK cli 工具",
+  "main": "index.js",
+  "author": "rxliuli",
+  "license": "MIT",
+  "private": true,
+  "bin": {
+    "li": "./bin/npm.js"
+  },
+  "scripts": {
+    "li": "ts-node src/li.ts",
+    "dev": "nodemon -w src/li.ts --exec \"yarn li\"",
+    "build": "tsc src/li.ts --outDir bin/"
+  },
+  "devDependencies": {
+    "@types/node": "^12.11.7",
+    "jest": "^24.9.0",
+    "jest-extended": "^0.11.2",
+    "nodeman": "^1.1.2",
+    "prettier": "^1.18.2",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.4"
+  },
+  "dependencies": {
+    "commander": "^3.0.2",
+    "tslib": "^1.10.0"
+  }
+}
