@@ -2,7 +2,7 @@
   "name": "liuli-cli",
   "version": "0.1.0",
   "description": "一个 JavaScript/TypeScript SDK cli 工具",
-  "main": "index.js",
+  "main": "bin/npm.js",
   "author": "rxliuli",
   "license": "MIT",
   "private": true,
@@ -15,6 +15,8 @@
     "build": "tsc src/li.ts --outDir bin/"
   },
   "devDependencies": {
+    "@types/inquirer": "^6.5.0",
+    "@types/mz": "^0.0.32",
     "@types/node": "^12.11.7",
     "jest": "^24.9.0",
     "jest-extended": "^0.11.2",
@@ -25,6 +27,9 @@
   },
   "dependencies": {
     "commander": "^3.0.2",
+    "download-git-repo": "^3.0.2",
+    "inquirer": "^7.0.0",
+    "mz": "^2.7.0",
     "tslib": "^1.10.0"
   }
 }

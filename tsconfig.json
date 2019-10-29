@@ -14,8 +14,10 @@
     "esModuleInterop": true,
     // 引入辅助函数集
     "importHelpers": true,
+    // 允许导入 JSON 模块
+    "resolveJsonModule": true,
     "moduleResolution": "node"
   },
-  "include": ["./src/**/*.ts"],
+  "include": ["./src/**/*.ts", "src/constant.ts"],
   "exclude": ["./dist", "./node_modules"]
 }
