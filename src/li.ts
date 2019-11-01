@@ -110,20 +110,24 @@ program
     if (!checkDirExist(projectDir)) {
       return
     }
+    // 询问选项
     const settings = await promptInput()
     if (!settings) {
       return
     }
 
     try {
+      // 下载基本模板
       await downloadTemplate(projectName)
     } catch (err) {
       console.log(err)
       return
     }
 
+    // 初始化项目，例如修改项目名
     initProject(projectDir, projectName)
 
+    // 做最后的准备工作
     execReady(projectDir)
     return
 
