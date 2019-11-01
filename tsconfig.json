@@ -4,6 +4,9 @@
     "lib": ["es2017"],
     // nodejs 目前必须使用 commonjs 规范
     "module": "commonjs",
+    "paths": {
+      "*": ["types/*"]
+    },
     "declaration": true,
     "declarationMap": true,
     "outDir": "./dist",
