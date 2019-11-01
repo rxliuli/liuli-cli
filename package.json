@@ -1,4 +1,5 @@
 {
+  "name": "@liuli-moe/cli",
   "version": "0.1.0",
   "description": "一个 JavaScript/TypeScript SDK cli 工具",
   "main": "bin/npm.js",
@@ -6,28 +7,33 @@
   "license": "MIT",
   "private": true,
   "bin": {
-    "li": "./bin/npm.js"
+    "li": "./bin/li.js"
   },
   "scripts": {
     "li": "ts-node src/li.ts",
     "dev": "nodemon -w src/li.ts --exec \"yarn li\"",
-    "build": "tsc src/li.ts --outDir bin/"
+    "build": "rollup -c rollup.config.js"
   },
   "devDependencies": {
     "@types/inquirer": "^6.5.0",
     "@types/jest": "^24.0.21",
     "@types/mz": "^0.0.32",
     "@types/node": "^12.11.7",
+    "@types/rollup": "^0.54.0",
+    "@types/shelljs": "^0.8.5",
     "jest": "^24.9.0",
     "jest-extended": "^0.11.2",
     "nodeman": "^1.1.2",
     "prettier": "^1.18.2",
+    "rollup": "^1.26.2",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-terser": "^5.1.2",
+    "rollup-plugin-typescript2": "^0.24.3",
     "sort-package-json": "^1.22.1",
     "ts-jest": "^24.1.0",
     "ts-node": "^8.4.1"
   },
   "dependencies": {
-    "@types/shelljs": "^0.8.5",
     "commander": "^3.0.2",
     "download-git-repo": "^3.0.2",
     "inquirer": "^7.0.0",

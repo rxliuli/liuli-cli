@@ -3,7 +3,7 @@
     "target": "es6",
     "lib": ["es2017"],
     // nodejs 目前必须使用 commonjs 规范
-    "module": "commonjs",
+    "module": "es2015",
     "paths": {
       "*": ["types/*"]
     },

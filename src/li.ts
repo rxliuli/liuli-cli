@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import { resolve } from 'path'
-import { existsSync, readFileSync, writeFileSync } from 'mz/fs'
+import { existsSync } from 'mz/fs'
 import appInfo from '../package.json'
 import { prompt } from 'inquirer'
 import {
@@ -26,7 +26,7 @@ const program = new Command()
 program
   .option('-d, --debug', '输出内部调试信息')
   // 版本号
-  .version(appInfo.version, '-v, --version', 'liuli-cli version')
+  .version(appInfo.version, '-v, --version', '@liuli-moe/cli 的版本')
 
 /**
  * 检查项目名是否在当前目录已经存在
