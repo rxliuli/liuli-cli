@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "lib": ["es2017"],
-    // nodejs 目前必须使用 commonjs 规范
+    // nodejs 目前必须使用 commonjs 规范，在 ts-node 命令行选项进行覆盖
     "module": "es2015",
     "paths": {
       "*": ["types/*"]
