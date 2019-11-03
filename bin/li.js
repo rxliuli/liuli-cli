@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -47,9 +48,12 @@ var bin = {
 var scripts = {
 	li: "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
 	dev: "nodemon -w src/li.ts --exec \"yarn li\"",
-	build: "rollup -c rollup.config.js"
+	build: "rollup -c rollup.config.js",
+	"link:add": "yarn link && yarn link %npm_package_name%",
+	"link:remove": "yarn unlink %npm_package_name% && yarn unlink"
 };
 var devDependencies = {
+	"@babel/types": "^7.6.3",
 	"@types/inquirer": "^6.5.0",
 	"@types/jest": "^24.0.21",
 	"@types/mz": "^0.0.32",
@@ -66,16 +70,19 @@ var devDependencies = {
 	"rollup-plugin-typescript2": "^0.24.3",
 	"sort-package-json": "^1.22.1",
 	"ts-jest": "^24.1.0",
-	"ts-node": "^8.4.1"
+	"ts-node": "^8.4.1",
+	tslib: "^1.10.0",
+	typescript: "^3.6.4"
 };
 var dependencies = {
+	"@babel/core": "^7.6.4",
+	"@babel/parser": "^7.6.4",
+	"@babel/traverse": "^7.6.3",
 	commander: "^3.0.2",
 	"download-git-repo": "^3.0.2",
 	inquirer: "^7.0.0",
 	mz: "^2.7.0",
-	shelljs: "^0.8.3",
-	tslib: "^1.10.0",
-	typescript: "^3.6.4"
+	shelljs: "^0.8.3"
 };
 var appInfo = {
 	name: name,
