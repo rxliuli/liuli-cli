@@ -13,6 +13,8 @@ import {
 import download from 'download-git-repo'
 import { execReady } from './execReady'
 import { initProject } from './initProject'
+import { initBabel } from './plugin/babel'
+import rimraf from 'rimraf'
 
 /**
  * 1. 向用户询问一些选项
@@ -30,7 +32,7 @@ program
 
 /**
  * 检查项目名是否在当前目录已经存在
- * @param projectName
+ * @param projectDir
  */
 async function checkDirExist(projectDir: string) {
   // 检查文件夹是否已存在
@@ -43,11 +45,7 @@ async function checkDirExist(projectDir: string) {
         default: false,
       },
     ])
-    if (isCovering) {
-      return true
-    }
-    console.log('已取消')
-    return false
+    return !isCovering
   }
 }
 
@@ -60,6 +58,7 @@ function promptInput() {
       type: 'checkbox',
       name: 'options',
       message: '请选择需要的组件',
+      suffix: '请按下空格',
       choices: [
         {
           name: BabelPlugin,
@@ -107,9 +106,11 @@ program
     // 获取当前路径
     const currentPath = resolve(process.cwd())
     const projectDir = resolve(currentPath, projectName)
-    if (!checkDirExist(projectDir)) {
+    if (await checkDirExist(projectDir)) {
+      console.log('已取消')
       return
     }
+    rimraf.sync(projectDir)
     // 询问选项
     const settings = await promptInput()
     if (!settings) {
@@ -127,14 +128,14 @@ program
     // 初始化项目，例如修改项目名
     initProject(projectDir, projectName)
 
+    // 初始化 babel
+    if (settings.options.includes(BabelPlugin)) {
+      initBabel(projectDir)
+    }
+
     // 做最后的准备工作
     execReady(projectDir)
     return
-
-    // 初始化 babel
-    if (settings.options.includes(BabelPlugin)) {
-      // TODO 这里应该默认设置打包目标为 ES5
-    }
   })
 
 // 真正开始解析命令
