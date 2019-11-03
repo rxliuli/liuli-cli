@@ -15,7 +15,7 @@
     "build": "rollup -c rollup.config.js",
     "link:add": "yarn link && yarn link %npm_package_name%",
     "link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-    "postinstall": "yarn link:add && yarn link:remove"
+    "postinstall": "yarn link:add"
   },
   "devDependencies": {
     "@babel/types": "^7.6.3",
