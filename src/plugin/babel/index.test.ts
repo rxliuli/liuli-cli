@@ -1,12 +1,11 @@
 import { initBabel } from '.'
 import { resolve } from 'path'
-import copyDir from 'copy-dir'
-import rimraf from 'rimraf'
+import { removeSync, copySync } from 'fs-extra'
 
 describe('测试 dep', () => {
   beforeEach(() => {
-    rimraf.sync(resolve(process.cwd(), 'test/node-example'))
-    copyDir.sync(
+    removeSync(resolve(process.cwd(), 'test/node-example'))
+    copySync(
       resolve(process.cwd(), 'test/js-sdk-origin'),
       resolve(process.cwd(), 'test/node-example'),
     )

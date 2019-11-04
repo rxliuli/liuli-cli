@@ -1,5 +1,7 @@
-export const BabelPlugin = 'Babel'
-export const ESLintPlugin = 'ESLint'
-export const PrettierPlugin = 'Prettier'
-export const JestPlugin = 'JEST'
-export const ESDocPlugin = 'ESDoc'
+export enum Plugin {
+  BabelPlugin = 'Babel',
+  ESLintPlugin = 'ESLint',
+  PrettierPlugin = 'Prettier',
+  JestPlugin = 'JEST',
+  ESDocPlugin = 'ESDoc',
+}

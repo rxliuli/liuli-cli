@@ -1,7 +1,4 @@
 import shell from 'shelljs'
-import { readFileSync, writeFileSync } from 'fs'
-import { resolve } from 'path'
-import sortPackageJson from 'sort-package-json'
 import { formatPackageJSON } from './formatPackageJSON'
 
 /**
@@ -14,5 +11,3 @@ export function execReady(projectDir: string) {
   shell.cd(projectDir)
   shell.exec('yarn && yarn clean && yarn build')
 }
-
-// execReady(resolve(process.cwd(), 'test/node-example'))

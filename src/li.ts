@@ -1,20 +1,13 @@
 import { Command } from 'commander'
 import { resolve } from 'path'
-import { existsSync } from 'mz/fs'
 import appInfo from '../package.json'
 import { prompt } from 'inquirer'
-import {
-  BabelPlugin,
-  ESLintPlugin,
-  PrettierPlugin,
-  JestPlugin,
-  ESDocPlugin,
-} from './constant'
 import download from 'download-git-repo'
 import { execReady } from './execReady'
 import { initProject } from './initProject'
 import { initBabel } from './plugin/babel'
-import rimraf from 'rimraf'
+import { pathExistsSync, removeSync } from 'fs-extra'
+import { Plugin } from './constant'
 
 /**
  * 1. 向用户询问一些选项
@@ -36,7 +29,7 @@ program
  */
 async function checkDirExist(projectDir: string) {
   // 检查文件夹是否已存在
-  if (existsSync(projectDir)) {
+  if (pathExistsSync(projectDir)) {
     const { isCovering } = await prompt([
       {
         type: 'confirm',
@@ -61,23 +54,23 @@ function promptInput() {
       suffix: '请按下空格',
       choices: [
         {
-          name: BabelPlugin,
+          name: Plugin.BabelPlugin,
           checked: true,
         },
         {
-          name: ESLintPlugin,
+          name: Plugin.ESLintPlugin,
           checked: false,
         },
         {
-          name: PrettierPlugin,
+          name: Plugin.PrettierPlugin,
           checked: false,
         },
         {
-          name: JestPlugin,
+          name: Plugin.JestPlugin,
           checked: false,
         },
         {
-          name: ESDocPlugin,
+          name: Plugin.ESDocPlugin,
           checked: false,
         },
       ],
@@ -110,7 +103,7 @@ program
       console.log('已取消')
       return
     }
-    rimraf.sync(projectDir)
+    removeSync(projectDir)
     // 询问选项
     const settings = await promptInput()
     if (!settings) {
@@ -126,10 +119,10 @@ program
     }
 
     // 初始化项目，例如修改项目名
-    initProject(projectDir, projectName)
+    initProject(projectDir)
 
     // 初始化 babel
-    if (settings.options.includes(BabelPlugin)) {
+    if (settings.options.includes(Plugin.BabelPlugin)) {
       initBabel(projectDir)
     }
 

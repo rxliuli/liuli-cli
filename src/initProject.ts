@@ -1,19 +1,14 @@
-import { writeFileSync, readFileSync } from 'fs'
-import { resolve } from 'path'
+import { resolve, sep } from 'path'
+import { readJSONSync, writeJSONSync } from 'fs-extra'
 
 /**
  * 一些初始化操作，修改项目名
  * @param projectDir
  */
-export function initProject(projectDir: string, projectName: string) {
+export function initProject(projectDir: string) {
   const packagePath = resolve(projectDir, 'package.json')
-  const data = readFileSync(packagePath, {
-    encoding: 'utf8',
-  })
-  const json = JSON.parse(data)
-  const projectPathList = projectName.split('/')
+  const json = readJSONSync(packagePath)
+  const projectPathList = projectDir.split(sep)
   json.name = projectPathList[projectPathList.length - 1]
-  writeFileSync(packagePath, JSON.stringify(json, null, 2))
+  writeJSONSync(packagePath, json)
 }
-
-// initProject(resolve(process.cwd(), 'test/node-example'), 'node-example')
