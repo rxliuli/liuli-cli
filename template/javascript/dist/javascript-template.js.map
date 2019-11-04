@@ -1,0 +1,1 @@
+{"version":3,"file":"javascript-template.js","sources":["../src/index.js"],"sourcesContent":["export async function hello() {\r\n  console.log('hello world')\r\n}\r\n\r\nexport default { hello }\r\n"],"names":[],"mappings":";;;;;;EAAO,eAAe,KAAK,GAAG;EAC9B,EAAE,OAAO,CAAC,GAAG,CAAC,aAAa,EAAC;EAC5B,CAAC;;AAED,cAAe,EAAE,KAAK,EAAE;;;;;;;;;;;;;"}
