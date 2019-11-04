@@ -23,6 +23,7 @@ import { formatPackageJSON } from '../../formatPackageJSON'
  * @param {*} projectDir
  */
 export function initBabel(projectDir: string) {
+  // TODO 修改为 fs-extra 模块，添加 generator 目录放置模板
   const packagePath = resolve(projectDir, 'package.json')
   const data = readFileSync(packagePath, {
     encoding: 'utf8',
