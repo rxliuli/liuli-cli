@@ -2,11 +2,10 @@ import { Command } from 'commander'
 import { resolve } from 'path'
 import appInfo from '../package.json'
 import { prompt } from 'inquirer'
-import download from 'download-git-repo'
 import { execReady } from './execReady'
 import { initProject } from './initProject'
 import { initBabel } from './plugin/babel'
-import { pathExistsSync, removeSync } from 'fs-extra'
+import { copySync, pathExistsSync, removeSync } from 'fs-extra'
 import { Plugin } from './constant'
 
 /**
@@ -83,12 +82,10 @@ function promptInput() {
  * @param projectName
  */
 function downloadTemplate(projectName: string) {
-  return new Promise((resolve, reject) => {
-    const jsTemplate = 'rxliuli/javascript-template'
-    download(jsTemplate, projectName, err => {
-      return err ? reject(err) : resolve()
-    })
-  })
+  return copySync(
+    resolve(__dirname, '../template/javascript'),
+    resolve(process.cwd(), 'projectName'),
+  )
 }
 
 // 创建子命令 create
