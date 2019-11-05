@@ -29,8 +29,7 @@ export function initJestJS(projectDir: string) {
   )
 
   // 拷贝一个基本的测试文件
-  // TODO 如何同时使用 jest 测试 yarn link 的本地包
-  let path = resolve(projectDir, 'test/index.test.js')
+  const path = resolve(projectDir, 'test/index.test.js')
   copySync(resolve(__dirname, 'generator/index.test.js'), path)
   const data = readFileSync(path, {
     encoding: 'utf8',

@@ -3,9 +3,10 @@
     [
       "@babel/preset-env",
       {
-        "modules": false
+        "targets": {
+          "node": "current"
+        }
       }
     ]
-  ],
-  "plugins": ["@babel/plugin-external-helpers"]
+  ]
 }
