@@ -1,0 +1,9 @@
+{
+  "extends": "standard",
+  "env": {
+    "browser": true
+  },
+  "rules": {
+    "comma-dangle": ["error", "always-multiline"]
+  }
+}
