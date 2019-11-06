@@ -27,7 +27,7 @@ describe('测试 eslint js 插件', () => {
       const path = resolve(root, 'test/javascript-template')
       initBabel(path)
       initJestJS(path)
-      initESLint(path, [Plugin.JestPlugin])
+      initESLint(path, [Plugin.JestPlugin, Plugin.BabelPlugin])
     })
   })
 
