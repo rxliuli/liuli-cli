@@ -10,8 +10,6 @@ export default {
     name: 'li',
     // 文件顶部信息
     banner: '#!/usr/bin/env node',
-    // 启用代码映射，便于调试之用
-    sourcemap: true,
     file: resolve(__dirname, 'bin/li.js'),
     format: 'cjs',
   },

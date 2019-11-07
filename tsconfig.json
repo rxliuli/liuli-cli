@@ -7,8 +7,9 @@
     "paths": {
       "*": ["types/*"]
     },
-    "declaration": true,
-    "declarationMap": true,
+    // 不生成 .d.ts 及其对应的 .map 文件
+    "declaration": false,
+    "declarationMap": false,
     "outDir": "./dist",
     "strict": true,
     "noImplicitAny": true,
