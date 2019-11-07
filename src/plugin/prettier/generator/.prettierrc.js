@@ -1,5 +1,6 @@
 const prettierConfigStandard = require('prettier-config-standard')
 
-module.exports = Object.assign({}, prettierConfigStandard, {
+module.exports = {
+  ...prettierConfigStandard,
   // 自定义配置
-})
+}
