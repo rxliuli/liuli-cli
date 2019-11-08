@@ -396,9 +396,9 @@
     "@types/jest-diff" "*"
 
 "@types/lodash@^4.14.144":
-  version "4.14.144"
-  resolved "https://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.144.tgz#12e57fc99064bce45e5ab3c8bc4783feb75eab8e"
-  integrity sha1-EuV/yZBkvOReWrPIvEeD/rdeq44=
+  version "4.14.145"
+  resolved "https://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.145.tgz#abcafe85788f1392c5d5a144142aaf8529ad6bb9"
+  integrity sha1-q8r+hXiPE5LF1aFEFCqvhSmta7k=
 
 "@types/minimatch@*":
   version "3.0.3"
@@ -1040,6 +1040,11 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.npm.taobao.org/core-util-is/download/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
+
+create-license@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npm.taobao.org/create-license/download/create-license-1.0.2.tgz#fa77ef8cbe06895f0440816839c1e53267fa62a6"
+  integrity sha1-+nfvjL4GiV8EQIFoOcHlMmf6YqY=
 
 cross-spawn@^6.0.0:
   version "6.0.5"
