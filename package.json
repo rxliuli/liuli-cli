@@ -28,6 +28,7 @@
     "@types/node": "^12.11.7",
     "@types/rollup": "^0.54.0",
     "@types/shelljs": "^0.8.5",
+    "@types/username": "^3.0.0",
     "app-root-path": "^3.0.0",
     "jest": "^24.9.0",
     "jest-extended": "^0.11.2",
@@ -48,10 +49,12 @@
     "@babel/parser": "^7.6.4",
     "@babel/traverse": "^7.6.3",
     "commander": "^3.0.2",
+    "create-license": "^1.0.2",
     "download-git-repo": "^3.0.2",
     "fs-extra": "^8.1.0",
     "inquirer": "^7.0.0",
     "lodash": "^4.17.15",
-    "shelljs": "^0.8.3"
+    "shelljs": "^0.8.3",
+    "username": "^5.1.0"
   }
 }

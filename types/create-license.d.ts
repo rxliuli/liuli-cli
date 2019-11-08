@@ -37,7 +37,7 @@ type Options = {
  * @param type 许可证的类型
  * @param opts 一些选项
  */
-export function createLicense(
+export default function createLicense(
   where: string,
   type: LicenseType,
   opts: Options,
