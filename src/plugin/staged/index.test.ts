@@ -19,7 +19,7 @@ describe('测试 staged', function() {
   })
   it('一般情况', function() {
     initPrettier(path)
-    initESLint(path, [Plugin.PrettierPlugin])
+    initESLint(path, [Plugin.Prettier])
     initStaged(path)
   })
 })

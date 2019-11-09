@@ -25,11 +25,11 @@ describe('测试 eslint js 插件', () => {
     it('集成测试 eslint + jest', () => {
       initBabel(path)
       initJestJS(path)
-      initESLint(path, [Plugin.JestPlugin, Plugin.BabelPlugin])
+      initESLint(path, [Plugin.Jest, Plugin.Babel])
     })
     it('集成测试 eslint + prettier', () => {
       initPrettier(path)
-      initESLint(path, [Plugin.PrettierPlugin])
+      initESLint(path, [Plugin.Prettier])
     })
   })
 

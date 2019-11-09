@@ -32,10 +32,10 @@ export function initESLint(projectDir: string, plugins: Plugin[] = []) {
     resolve(projectDir, '.eslintignore'),
   )
 
-  if (plugins.includes(Plugin.JestPlugin)) {
+  if (plugins.includes(Plugin.Jest)) {
     integratedJest(projectDir)
   }
-  if (plugins.includes(Plugin.PrettierPlugin)) {
+  if (plugins.includes(Plugin.Prettier)) {
     integratedPrettier(projectDir)
   }
 }

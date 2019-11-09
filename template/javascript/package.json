@@ -10,7 +10,7 @@
     "clean": "rimraf dist/",
     "link:add": "yarn link && yarn link %npm_package_name%",
     "link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-    "postinstall": "yarn link:remove && yarn link:add"
+    "postinstall": "yarn link:add && yarn link:remove && yarn link:add"
   },
   "devDependencies": {
     "@types/rollup": "^0.54.0",

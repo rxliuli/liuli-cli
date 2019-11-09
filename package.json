@@ -10,13 +10,13 @@
     "li": "./bin/li.js"
   },
   "scripts": {
-    "li": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
+    "li": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts create test/node-example",
     "dev": "nodemon -w src/li.ts --exec \"yarn li\"",
     "build": "rollup -c rollup.config.js",
     "test:create": "yarn li test/node-example",
     "link:add": "yarn link && yarn link %npm_package_name%",
     "link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-    "postinstall": "yarn link:remove && yarn link:add"
+    "postinstall": "yarn link:add && yarn link:remove && yarn link:add"
   },
   "devDependencies": {
     "@babel/types": "^7.6.3",
@@ -33,6 +33,7 @@
     "jest": "^24.9.0",
     "jest-extended": "^0.11.2",
     "nodeman": "^1.1.2",
+    "nodemon": "^1.19.4",
     "prettier": "^1.18.2",
     "rollup": "^1.26.2",
     "rollup-plugin-json": "^4.0.0",
