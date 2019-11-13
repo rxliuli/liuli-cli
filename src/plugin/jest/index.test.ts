@@ -1,24 +1,22 @@
-import { resolve } from 'path'
-import { copySync, removeSync } from 'fs-extra'
-import { initJestJS } from './index'
-import appRoot from 'app-root-path'
-import { initBabel } from '../babel'
+import { JestPlugin } from './index'
+import { BabelPlugin } from '../babel'
 import { execReady } from '../../execReady'
+import { initTestEnv } from '../../util/initTestEnv'
 
 describe('测试 jest js 插件', () => {
-  const projectDir = appRoot.path
+  let path: string
   beforeEach(() => {
-    removeSync(resolve(projectDir, 'test/javascript-template'))
-    copySync(
-      resolve(projectDir, 'template/javascript'),
-      resolve(projectDir, 'test/javascript-template'),
-    )
-    initBabel(resolve(projectDir, 'test/javascript-template'))
+    path = initTestEnv()
+    const babelPlugin = new BabelPlugin()
+    babelPlugin.projectDir = path
+    babelPlugin.handle()
   })
   afterEach(() => {
-    execReady(resolve(projectDir, 'test/javascript-template'))
+    execReady(path)
   })
   it('一般情况', () => {
-    initJestJS(resolve(projectDir, 'test/javascript-template'))
+    const jestPlugin = new JestPlugin()
+    jestPlugin.projectDir = path
+    jestPlugin.handle()
   })
 })

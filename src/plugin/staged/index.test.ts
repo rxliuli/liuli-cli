@@ -1,25 +1,25 @@
-import { initStaged } from './index'
-import appRoot from 'app-root-path'
-import { resolve } from 'path'
-import { copySync, removeSync } from 'fs-extra'
-import { execReady } from '../../execReady'
-import { initESLint } from '../eslint'
-import { initPrettier } from '../prettier'
+import { StagedPlugin } from './index'
+import { ESLintPlugin } from '../eslint'
+import { PrettierPlugin } from '../prettier'
 import { Plugin } from '../base/constant'
+import { initTestEnv } from '../../util/initTestEnv'
 
 describe('测试 staged', function() {
-  const projectDir = appRoot.path
-  let path = resolve(projectDir, 'test/javascript-template')
+  let path: string
   beforeEach(() => {
-    removeSync(path)
-    copySync(resolve(projectDir, 'template/javascript'), path)
-  })
-  afterEach(() => {
-    execReady(path)
+    path = initTestEnv()
   })
   it('一般情况', function() {
-    initPrettier(path)
-    initESLint(path, [Plugin.Prettier])
-    initStaged(path)
+    const prettierPlugin = new PrettierPlugin()
+    prettierPlugin.projectDir = path
+    prettierPlugin.handle()
+    const eslintPlugin = new ESLintPlugin()
+    eslintPlugin.projectDir = path
+    eslintPlugin.plugins.push(Plugin.Prettier)
+    eslintPlugin.handle()
+    const stagedPlugin = new StagedPlugin()
+    stagedPlugin.projectDir = path
+    stagedPlugin.plugins.push(Plugin.Prettier, Plugin.ESLint)
+    stagedPlugin.handle()
   })
 })

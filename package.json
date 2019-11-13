@@ -16,11 +16,13 @@
     "test:create": "yarn li test/node-example",
     "link:add": "yarn link && yarn link %npm_package_name%",
     "link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-    "postinstall": "yarn link:add && yarn link:remove && yarn link:add"
+    "postinstall": "yarn link:add && yarn link:remove && yarn link:add",
+    "pkg": "pkg . --out-path=dist/ -t win"
   },
   "devDependencies": {
     "@babel/types": "^7.6.3",
     "@types/app-root-path": "^1.2.4",
+    "@types/deepmerge": "^2.2.0",
     "@types/fs-extra": "^8.0.1",
     "@types/inquirer": "^6.5.0",
     "@types/jest": "^24.0.21",
@@ -34,6 +36,7 @@
     "jest-extended": "^0.11.2",
     "nodeman": "^1.1.2",
     "nodemon": "^1.19.4",
+    "pkg": "^4.4.0",
     "prettier": "^1.18.2",
     "rollup": "^1.26.2",
     "rollup-plugin-json": "^4.0.0",
@@ -51,6 +54,7 @@
     "@babel/traverse": "^7.6.3",
     "commander": "^3.0.2",
     "create-license": "^1.0.2",
+    "deepmerge": "^4.2.2",
     "download-git-repo": "^3.0.2",
     "fs-extra": "^8.1.0",
     "inquirer": "^7.0.0",

@@ -1,10 +1,68 @@
 import { resolve } from 'path'
 import { copySync } from 'fs-extra'
-import dep from './generator/dep.json'
-import jestDep from './generator/jestDep.json'
-import prettierDep from './generator/prettierDep.json'
+import pkgJSON from './generator/package.json'
+import jestPkgJSON from './generator/jest.package.json'
+import prettierPkgJSON from './generator/prettier.package.json'
 import { Plugin } from '../base/constant'
 import { updateJSONFile } from '../../util/updateJSONFile'
+import { BasePlugin } from '../base/BasePlugin'
+import merge from 'deepmerge'
+
+export class ESLintPlugin extends BasePlugin {
+  private eslintName = '.eslintrc'
+  private eslintIgnoreName = '.eslintignore'
+  constructor() {
+    super(Plugin.ESLint)
+  }
+  handle(): void {
+    // 修改 JSON 部分
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+      merge(json, pkgJSON),
+    )
+    // 拷贝配置文件
+    const genDir = resolve(__dirname, 'generator')
+    copySync(
+      resolve(genDir, this.eslintName),
+      resolve(this.projectDir, this.eslintName),
+    )
+    copySync(
+      resolve(genDir, this.eslintIgnoreName),
+      resolve(this.projectDir, this.eslintIgnoreName),
+    )
+  }
+  // 同时集成其他开源组件
+  public integrated() {
+    if (this.plugins.includes(Plugin.Jest)) {
+      this.integratedJest()
+    }
+    if (this.plugins.includes(Plugin.Prettier)) {
+      this.integratedPrettier()
+    }
+  }
+  // 处理与 jest 的集成
+  private integratedJest() {
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+      merge(json, jestPkgJSON),
+    )
+
+    updateJSONFile(resolve(this.projectDir, this.eslintName), json => {
+      json.env = {
+        ...json.env,
+        'jest/globals': true,
+      }
+    })
+  }
+  // 处理与 prettier 的集成
+  private integratedPrettier() {
+    // 更新依赖
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+      merge(json, prettierPkgJSON),
+    )
+    updateJSONFile(resolve(this.projectDir, this.eslintName), json => {
+      json.extends = [...json.extends, 'plugin:prettier/recommended']
+    })
+  }
+}
 
 /**
  * 初始化 ESLint
@@ -14,7 +72,7 @@ export function initESLint(projectDir: string, plugins: Plugin[] = []) {
   updateJSONFile(resolve(projectDir, 'package.json'), json => {
     json.devDependencies = {
       ...json.devDependencies,
-      ...dep,
+      ...pkgJSON,
     }
     json.scripts = {
       ...json.scripts,
@@ -22,14 +80,14 @@ export function initESLint(projectDir: string, plugins: Plugin[] = []) {
     }
   })
 
+  const genDir = resolve(__dirname, 'generator')
   // 拷贝配置文件
+  const eslintName = '.eslintrc'
+  const eslintIgnoreName = '.eslintignore'
+  copySync(resolve(genDir, eslintName), resolve(projectDir, eslintName))
   copySync(
-    resolve(__dirname, 'generator/.eslintrc'),
-    resolve(projectDir, '.eslintrc'),
-  )
-  copySync(
-    resolve(__dirname, 'generator/.eslintignore'),
-    resolve(projectDir, '.eslintignore'),
+    resolve(genDir, eslintIgnoreName),
+    resolve(projectDir, eslintIgnoreName),
   )
 
   if (plugins.includes(Plugin.Jest)) {
@@ -45,7 +103,7 @@ export function integratedJest(projectDir: string) {
   updateJSONFile(resolve(projectDir, 'package.json'), json => {
     json.devDependencies = {
       ...json.devDependencies,
-      ...jestDep,
+      ...jestPkgJSON,
     }
   })
 
@@ -63,7 +121,7 @@ export function integratedPrettier(projectDir: string) {
   updateJSONFile(resolve(projectDir, 'package.json'), json => {
     json.devDependencies = {
       ...json.devDependencies,
-      ...prettierDep,
+      ...prettierPkgJSON,
     }
   })
   updateJSONFile(resolve(projectDir, '.eslintrc'), json => {

@@ -1,24 +1,25 @@
-import { initPrettier } from './index'
+import { initPrettier, PrettierPlugin } from './index'
 import { resolve } from 'path'
 import appRoot from 'app-root-path'
 import { copySync, removeSync } from 'fs-extra'
-import { initBabel } from '../babel'
+import { BabelPlugin, initBabel } from '../babel'
 import { execReady } from '../../execReady'
+import { initTestEnv } from '../../util/initTestEnv'
 
 describe('测试 prettier 插件', function() {
-  const projectDir = appRoot.path
+  let path: string
   beforeEach(() => {
-    removeSync(resolve(projectDir, 'test/javascript-template'))
-    copySync(
-      resolve(projectDir, 'template/javascript'),
-      resolve(projectDir, 'test/javascript-template'),
-    )
-    initBabel(resolve(projectDir, 'test/javascript-template'))
+    path = initTestEnv()
+    const babelPlugin = new BabelPlugin()
+    babelPlugin.projectDir = path
+    babelPlugin.handle()
   })
   afterEach(() => {
-    execReady(resolve(projectDir, 'test/javascript-template'))
+    execReady(path)
   })
   it('一般情况', () => {
-    initPrettier(resolve(projectDir, 'test/javascript-template'))
+    const prettierPlugin = new PrettierPlugin()
+    prettierPlugin.projectDir = path
+    prettierPlugin.handle()
   })
 })

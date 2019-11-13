@@ -7,15 +7,15 @@ export abstract class BasePlugin {
   /**
    * 项目的根目录
    */
-  projectDir = ''
+  public projectDir = ''
   /**
    * 项目的插件 ID
    */
-  id: Plugin
+  public readonly id: Plugin
   /**
    * 项目依赖的插件 ID 列表
    */
-  depPlugins: Plugin[] = []
+  public plugins: Plugin[] = []
 
   protected constructor(id: Plugin) {
     this.id = id

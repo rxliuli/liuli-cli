@@ -1,25 +1,22 @@
 import { resolve } from 'path'
-import { copySync, pathExistsSync, removeSync } from 'fs-extra'
-import { initESDoc } from './index'
-import appRoot from 'app-root-path'
+import { pathExistsSync } from 'fs-extra'
+import { ESDocPlugin, initESDoc } from './index'
 import { execReady } from '../../execReady'
 import shell from 'shelljs'
+import { initTestEnv } from '../../util/initTestEnv'
+import { BabelPlugin } from '../babel'
 
-describe('测试 esdoc 插件', () => {
-  const projectDir = appRoot.path
+describe('测试 ESDoc 插件', () => {
+  let path: string
   beforeEach(() => {
-    removeSync(resolve(projectDir, 'test/javascript-template'))
-    copySync(
-      resolve(projectDir, 'template/javascript'),
-      resolve(projectDir, 'test/javascript-template'),
-    )
+    path = initTestEnv()
   })
   it('一般情况', () => {
-    initESDoc(resolve(projectDir, 'test/javascript-template'))
-    execReady(resolve(projectDir, 'test/javascript-template'))
-    shell.cd(resolve(projectDir, 'test/javascript-template')).exec('yarn docs')
-    expect(
-      pathExistsSync(resolve(projectDir, 'test/javascript-template', 'docs')),
-    ).toBeTruthy()
+    const plugin = new ESDocPlugin()
+    plugin.projectDir = path
+    plugin.handle()
+    execReady(path)
+    shell.cd(path).exec('yarn docs')
+    expect(pathExistsSync(resolve(path, 'docs'))).toBeTruthy()
   })
 })

@@ -1,43 +1,64 @@
-import { resolve } from 'path'
-import { copySync, removeSync } from 'fs-extra'
-import { initESLint, integratedJest, integratedPrettier } from './index'
-import appRoot from 'app-root-path'
+import { ESLintPlugin } from './index'
 import { execReady } from '../../execReady'
 import { Plugin } from '../base/constant'
-import { initJestJS } from '../jest'
-import { initBabel } from '../babel'
-import { initPrettier } from '../prettier'
+import { JestPlugin } from '../jest'
+import { BabelPlugin } from '../babel'
+import { PrettierPlugin } from '../prettier'
+import { initTestEnv } from '../../util/initTestEnv'
 
 describe('测试 eslint js 插件', () => {
-  const root = appRoot.path
-  const path = resolve(root, 'test/javascript-template')
+  let path!: string
   describe('主程序测试', () => {
     beforeEach(() => {
-      removeSync(path)
-      copySync(resolve(root, 'template/javascript'), path)
+      path = initTestEnv()
     })
     afterEach(() => {
       execReady(path)
     })
+
     it('一般情况', () => {
-      initESLint(path, [])
+      const plugin = new ESLintPlugin()
+      plugin.projectDir = path
+      plugin.handle()
     })
     it('集成测试 eslint + jest', () => {
-      initBabel(path)
-      initJestJS(path)
-      initESLint(path, [Plugin.Jest, Plugin.Babel])
+      const babelPlugin = new BabelPlugin()
+      babelPlugin.projectDir = path
+      babelPlugin.handle()
+      const jestPlugin = new JestPlugin()
+      jestPlugin.projectDir = path
+      jestPlugin.handle()
+      const eslintPlugin = new ESLintPlugin()
+      eslintPlugin.projectDir = path
+      eslintPlugin.plugins = [Plugin.Jest]
+      eslintPlugin.handle()
     })
     it('集成测试 eslint + prettier', () => {
-      initPrettier(path)
-      initESLint(path, [Plugin.Prettier])
+      const prettierPlugin = new PrettierPlugin()
+      prettierPlugin.projectDir = path
+      prettierPlugin.handle()
+      const eslintPlugin = new ESLintPlugin()
+      eslintPlugin.projectDir = path
+      eslintPlugin.plugins = [Plugin.Prettier]
+      eslintPlugin.handle()
     })
   })
 
-  it('单独测试 eslint + jest 集成', () => {
-    integratedJest(path)
-  })
-  it('单独测试 eslint + prettier 集成', () => {
-    initPrettier(path)
-    integratedPrettier(path)
+  describe('单独测试', function() {
+    let eslintPlugin: ESLintPlugin
+    beforeEach(() => {
+      const path = initTestEnv()
+      eslintPlugin = new ESLintPlugin()
+      eslintPlugin.projectDir = path
+      eslintPlugin.handle()
+    })
+    it('单独测试 eslint + jest 集成', () => {
+      eslintPlugin.plugins = [Plugin.Jest]
+      eslintPlugin.integrated()
+    })
+    it('单独测试 eslint + prettier 集成', () => {
+      eslintPlugin.plugins = [Plugin.Prettier]
+      eslintPlugin.integrated()
+    })
   })
 })

@@ -1,4 +1,4 @@
-import dep from './dep.json'
+import pkgJSON from './generator/package.json'
 import { resolve } from 'path'
 import { BabelFileResult, parseSync, transformFromAstSync } from '@babel/core'
 import {
@@ -19,23 +19,23 @@ import { BasePlugin } from '../base/BasePlugin'
 import { Plugin } from '../base/constant'
 import { updateJSONFile } from '../../util/updateJSONFile'
 import { copySync, readFileSync, writeFileSync } from 'fs-extra'
+import merge from 'deepmerge'
 
 export class BabelPlugin extends BasePlugin {
   constructor() {
     super(Plugin.Babel)
   }
   handle(): void {
-    const packagePath = resolve(this.projectDir, 'package.json')
-    const data = updateJSONFile(packagePath, json => {
-      json.devDependencies = {
-        ...json.devDependencies,
-        ...dep,
-      }
-    })
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+      merge(json, pkgJSON),
+    )
 
     // 复制文件
     const babelName = '.babelrc'
-    copySync(resolve(__dirname, babelName), resolve(this.projectDir, babelName))
+    copySync(
+      resolve(__dirname, 'generator', babelName),
+      resolve(this.projectDir, babelName),
+    )
 
     //修改 base dev 配置
     const babelPluginImport = ((parseSync(
