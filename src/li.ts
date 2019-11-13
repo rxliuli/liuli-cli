@@ -6,7 +6,7 @@ import {execReady} from './execReady'
 import {initProject} from './initProject'
 import {initBabel} from './plugin/babel'
 import {copySync, pathExistsSync, removeSync} from 'fs-extra'
-import {Plugin} from './constant'
+import {Plugin} from './plugin/base/constant'
 import {initJestJS} from "./plugin/jest";
 import {initESLint} from "./plugin/eslint";
 import {initPrettier} from "./plugin/prettier";

@@ -5,7 +5,7 @@ import { copySync, removeSync } from 'fs-extra'
 import { execReady } from '../../execReady'
 import { initESLint } from '../eslint'
 import { initPrettier } from '../prettier'
-import { Plugin } from '../../constant'
+import { Plugin } from '../base/constant'
 
 describe('测试 staged', function() {
   const projectDir = appRoot.path

@@ -3,7 +3,7 @@ import { copySync } from 'fs-extra'
 import dep from './generator/dep.json'
 import jestDep from './generator/jestDep.json'
 import prettierDep from './generator/prettierDep.json'
-import { Plugin } from '../../constant'
+import { Plugin } from '../base/constant'
 import { updateJSONFile } from '../../util/updateJSONFile'
 
 /**

@@ -22,6 +22,6 @@
     "resolveJsonModule": true,
     "moduleResolution": "node"
   },
-  "include": ["./src/**/*.ts", "src/constant.ts"],
+  "include": ["./src/**/*.ts"],
   "exclude": ["./dist", "./node_modules"]
 }

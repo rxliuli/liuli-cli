@@ -1,18 +1,19 @@
-import { initBabel } from '.'
+import { BabelPlugin, initBabel } from '.'
 import { resolve } from 'path'
-import { removeSync, copySync } from 'fs-extra'
+import { copySync, removeSync } from 'fs-extra'
 import appRoot from 'app-root-path'
 
 describe('测试 dep', () => {
   const projectDir = appRoot.path
+  const path = resolve(projectDir, 'test/javascript-template')
   beforeEach(() => {
-    removeSync(resolve(projectDir, 'test/node-example'))
-    copySync(
-      resolve(projectDir, 'template/javascript'),
-      resolve(projectDir, 'test/node-example'),
-    )
+    removeSync(path)
+    copySync(resolve(projectDir, 'template/javascript'), path)
+    initBabel(path)
   })
   it('一般情况', () => {
-    initBabel(resolve(projectDir, 'test/node-example'))
+    const babelPlugin = new BabelPlugin()
+    babelPlugin.projectDir = path
+    babelPlugin.handle()
   })
 })
