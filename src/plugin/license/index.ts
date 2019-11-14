@@ -9,7 +9,7 @@ import { Plugin } from '../base/constant'
  * license 插件
  */
 export class LicensePlugin extends BasePlugin {
-  license: LicenseType = 'mit'
+  public license!: LicenseType
   constructor() {
     super(Plugin.LICENSE)
   }

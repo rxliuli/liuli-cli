@@ -22,6 +22,11 @@ export abstract class BasePlugin {
   }
 
   /**
+   * 可选择的集成其他插件时的操作
+   */
+  integrated() {}
+
+  /**
    * 处理函数
    */
   abstract handle(): void

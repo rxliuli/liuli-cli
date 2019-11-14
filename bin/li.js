@@ -14,6 +14,7 @@ var core = require('@babel/core');
 var types = require('@babel/types');
 var parser = require('@babel/parser');
 var lodash = require('lodash');
+var merge = _interopDefault(require('deepmerge'));
 var createLicense = _interopDefault(require('create-license'));
 var username = _interopDefault(require('username'));
 
@@ -57,11 +58,13 @@ var scripts = {
 	"test:create": "yarn li test/node-example",
 	"link:add": "yarn link && yarn link %npm_package_name%",
 	"link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-	postinstall: "yarn link:add && yarn link:remove && yarn link:add"
+	postinstall: "yarn link:add && yarn link:remove && yarn link:add",
+	pkg: "pkg . --out-path=dist/ -t win"
 };
 var devDependencies = {
 	"@babel/types": "^7.6.3",
 	"@types/app-root-path": "^1.2.4",
+	"@types/deepmerge": "^2.2.0",
 	"@types/fs-extra": "^8.0.1",
 	"@types/inquirer": "^6.5.0",
 	"@types/jest": "^24.0.21",
@@ -75,6 +78,7 @@ var devDependencies = {
 	"jest-extended": "^0.11.2",
 	nodeman: "^1.1.2",
 	nodemon: "^1.19.4",
+	pkg: "^4.4.0",
 	prettier: "^1.18.2",
 	rollup: "^1.26.2",
 	"rollup-plugin-json": "^4.0.0",
@@ -92,6 +96,7 @@ var dependencies = {
 	"@babel/traverse": "^7.6.3",
 	commander: "^3.0.2",
 	"create-license": "^1.0.2",
+	deepmerge: "^4.2.2",
 	"download-git-repo": "^3.0.2",
 	"fs-extra": "^8.1.0",
 	inquirer: "^7.0.0",
@@ -147,118 +152,46 @@ function initProject(projectDir) {
     fsExtra.writeJSONSync(packagePath, json);
 }
 
-var dep = {
+var devDependencies$1 = {
 	"@babel/core": "^7.2.2",
 	"@babel/preset-env": "^7.3.1",
 	"rollup-plugin-babel": "^4.3.2"
 };
+var pkgJSON = {
+	devDependencies: devDependencies$1
+};
 
 /**
- * 初始化 babel 插件
- * @param {*} projectDir
+ * 基础的插件接口，所有的接口
  */
-function initBabel(projectDir) {
-    // TODO 修改为 fs-extra 模块，添加 generator 目录放置模板
-    const packagePath = path.resolve(projectDir, 'package.json');
-    const data = fs.readFileSync(packagePath, {
-        encoding: 'utf8',
-    });
-    const json = JSON.parse(data);
-    // 修改 JSON 部分
-    json.devDependencies = Object.assign(Object.assign({}, json.devDependencies), dep);
-    fs.writeFileSync(packagePath, JSON.stringify(json, null, 2));
-    formatPackageJSON(projectDir);
-    // 复制文件
-    const babelName = '.babelrc';
-    fs.copyFileSync(path.resolve(__dirname, babelName), path.resolve(projectDir, babelName));
-    //修改 base dev 配置
-    const babelPluginImport = core.parseSync("import babel from 'rollup-plugin-babel'").program.body[0];
-    const babelPluginConfig = parser.parseExpression(`
-      babel({
-        exclude: '../node_modules/**'
-      })
-    `);
-    const rollupConfigPath = path.resolve(projectDir, 'build/rollup.config.base.js');
-    const str = fs.readFileSync(rollupConfigPath, {
-        encoding: 'utf8',
-    });
-    const ast = core.parseSync(str);
-    // 找到最后一个 import 的位置，没有找到则放置到 0
-    const index = lodash.findLastIndex(ast.program.body, node => types.isImportDeclaration(node)) + 1;
-    // 添加 import
-    ast.program.body = [
-        ...ast.program.body.slice(0, index),
-        babelPluginImport,
-        ...ast.program.body.slice(index),
-    ];
-    // 修改默认导出的值
-    const exportDefaultNode = ast.program.body.find(node => types.isExportDefaultDeclaration(node));
-    const plugins = exportDefaultNode.declaration.properties.find(node => types.isObjectProperty(node) &&
-        node.key.name === 'plugins').value;
-    plugins.elements.push(babelPluginConfig);
-    fs.writeFileSync(rollupConfigPath, core.transformFromAstSync(ast).code, {
-        encoding: 'utf8',
-    });
+class BasePlugin {
+    constructor(id) {
+        /**
+         * 项目的根目录
+         */
+        this.projectDir = '';
+        /**
+         * 项目依赖的插件 ID 列表
+         */
+        this.plugins = [];
+        this.id = id;
+    }
+    /**
+     * 可选择的集成其他插件时的操作
+     */
+    integrated() { }
 }
 
 var Plugin;
 (function (Plugin) {
-    Plugin["BabelPlugin"] = "Babel";
-    Plugin["ESLintPlugin"] = "ESLint";
-    Plugin["PrettierPlugin"] = "Prettier";
-    Plugin["JestPlugin"] = "JEST";
-    Plugin["ESDocPlugin"] = "ESDoc";
-    Plugin["Staged"] = "Staged";
-    Plugin["LICENSE"] = "LICENSE";
+    Plugin[Plugin["Babel"] = 0] = "Babel";
+    Plugin[Plugin["ESLint"] = 1] = "ESLint";
+    Plugin[Plugin["Prettier"] = 2] = "Prettier";
+    Plugin[Plugin["Jest"] = 3] = "Jest";
+    Plugin[Plugin["ESDoc"] = 4] = "ESDoc";
+    Plugin[Plugin["Staged"] = 5] = "Staged";
+    Plugin[Plugin["LICENSE"] = 6] = "LICENSE";
 })(Plugin || (Plugin = {}));
-
-var jest = "^24.5.0";
-var dep$1 = {
-	"@types/jest": "^24.0.12",
-	jest: jest,
-	"jest-extended": "^0.11.1"
-};
-
-/**
- * 初始化 jest 配置
- * @param projectDir
- */
-function initJestJS(projectDir) {
-    const packagePath = path.resolve(projectDir, 'package.json');
-    const json = fsExtra.readJSONSync(packagePath);
-    // 修改 JSON 部分
-    json.devDependencies = Object.assign(Object.assign({}, json.devDependencies), dep$1);
-    json.scripts = Object.assign(Object.assign({}, json.scripts), { test: 'jest --all' });
-    fsExtra.writeJSONSync(packagePath, json);
-    // 拷贝配置文件
-    fsExtra.copySync(path.resolve(__dirname, 'generator/jest.config.js'), path.resolve(projectDir, 'jest.config.js'));
-    // 拷贝一个基本的测试文件
-    const path$1 = path.resolve(projectDir, 'test/index.test.js');
-    fsExtra.copySync(path.resolve(__dirname, 'generator/index.test.js'), path$1);
-    const data = fsExtra.readFileSync(path$1, {
-        encoding: 'utf8',
-    }).replace('javascript-template', lodash.last(projectDir.split(path.sep)));
-    fs.writeFileSync(path$1, data);
-}
-
-var eslint = "^5.15.3";
-var dep$2 = {
-	eslint: eslint,
-	"eslint-config-standard": "^12.0.0",
-	"eslint-plugin-import": "^2.14.0",
-	"eslint-plugin-node": "^8.0.1",
-	"eslint-plugin-promise": "^4.0.1",
-	"eslint-plugin-standard": "^4.0.0"
-};
-
-var jestDep = {
-	"eslint-plugin-jest": "^22.4.1"
-};
-
-var prettierDep = {
-	"eslint-config-prettier": "^6.5.0",
-	"eslint-plugin-prettier": "^3.1.1"
-};
 
 /**
  * 更新 json 文件
@@ -274,111 +207,249 @@ function updateJSONFile(file, fn) {
     });
 }
 
-/**
- * 初始化 ESLint
- */
-function initESLint(projectDir, plugins = []) {
-    // 修改 JSON 部分
-    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
-        json.devDependencies = Object.assign(Object.assign({}, json.devDependencies), dep$2);
-        json.scripts = Object.assign(Object.assign({}, json.scripts), { test: 'jest --all' });
-    });
-    // 拷贝配置文件
-    fsExtra.copySync(path.resolve(__dirname, 'generator/.eslintrc'), path.resolve(projectDir, '.eslintrc'));
-    fsExtra.copySync(path.resolve(__dirname, 'generator/.eslintignore'), path.resolve(projectDir, '.eslintignore'));
-    if (plugins.includes(Plugin.JestPlugin)) {
-        integratedJest(projectDir);
+class BabelPlugin extends BasePlugin {
+    constructor() {
+        super(Plugin.Babel);
     }
-    if (plugins.includes(Plugin.PrettierPlugin)) {
-        integratedPrettier(projectDir);
+    handle() {
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON));
+        // 复制文件
+        const babelName = '.babelrc';
+        fsExtra.copySync(path.resolve(__dirname, 'generator', babelName), path.resolve(this.projectDir, babelName));
+        //修改 base dev 配置
+        const babelPluginImport = core.parseSync("import babel from 'rollup-plugin-babel'").program.body[0];
+        const babelPluginConfig = parser.parseExpression(`
+      babel({
+        exclude: '../node_modules/**'
+      })
+    `);
+        const rollupConfigPath = path.resolve(this.projectDir, 'build/rollup.config.base.js');
+        const str = fsExtra.readFileSync(rollupConfigPath, {
+            encoding: 'utf8',
+        });
+        const ast = core.parseSync(str);
+        // 找到最后一个 import 的位置，没有找到则放置到 0
+        const index = lodash.findLastIndex(ast.program.body, node => types.isImportDeclaration(node)) + 1;
+        // 添加 import
+        ast.program.body = [
+            ...ast.program.body.slice(0, index),
+            babelPluginImport,
+            ...ast.program.body.slice(index),
+        ];
+        // 修改默认导出的值
+        const exportDefaultNode = ast.program.body.find(node => types.isExportDefaultDeclaration(node));
+        const plugins = exportDefaultNode.declaration.properties.find(node => types.isObjectProperty(node) &&
+            node.key.name === 'plugins').value;
+        plugins.elements.push(babelPluginConfig);
+        fsExtra.writeFileSync(rollupConfigPath, core.transformFromAstSync(ast).code, {
+            encoding: 'utf8',
+        });
     }
-}
-// 处理与 jest 的集成
-function integratedJest(projectDir) {
-    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
-        json.devDependencies = Object.assign(Object.assign({}, json.devDependencies), jestDep);
-    });
-    updateJSONFile(path.resolve(projectDir, '.eslintrc'), json => {
-        json.env = Object.assign(Object.assign({}, json.env), { 'jest/globals': true });
-    });
-}
-// 处理与 prettier 的集成
-function integratedPrettier(projectDir) {
-    // 更新依赖
-    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
-        json.devDependencies = Object.assign(Object.assign({}, json.devDependencies), prettierDep);
-    });
-    updateJSONFile(path.resolve(projectDir, '.eslintrc'), json => {
-        json.extends = [...json.extends, 'plugin:prettier/recommended'];
-    });
 }
 
-var prettier = "^1.18.2";
-var dep$3 = {
-	prettier: prettier,
+var scripts$1 = {
+	test: "jest --all"
+};
+var devDependencies$2 = {
+	"@types/jest": "^24.0.12",
+	jest: "^24.5.0",
+	"jest-extended": "^0.11.1"
+};
+var pkgJSON$1 = {
+	scripts: scripts$1,
+	devDependencies: devDependencies$2
+};
+
+class JestPlugin extends BasePlugin {
+    constructor() {
+        super(Plugin.Jest);
+        this.jestName = 'jest.config.js';
+        this.testName = 'index.test.js';
+    }
+    handle() {
+        // 修改 JSON 部分
+        path.resolve(this.projectDir, 'package.json');
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$1));
+        // 拷贝配置文件
+        fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestName), path.resolve(this.projectDir, this.jestName));
+        // 拷贝一个基本的测试文件
+        const path$1 = path.resolve(this.projectDir, 'test', this.testName);
+        fsExtra.copySync(path.resolve(__dirname, 'generator', this.testName), path$1);
+        const data = fsExtra.readFileSync(path$1, {
+            encoding: 'utf8',
+        }).replace('javascript-template', lodash.last(this.projectDir.split(path.sep)));
+        fs.writeFileSync(path$1, data);
+    }
+}
+
+var scripts$2 = {
+	test: "jest --all"
+};
+var devDependencies$3 = {
+	eslint: "^5.15.3",
+	"eslint-config-standard": "^12.0.0",
+	"eslint-plugin-import": "^2.14.0",
+	"eslint-plugin-node": "^8.0.1",
+	"eslint-plugin-promise": "^4.0.1",
+	"eslint-plugin-standard": "^4.0.0"
+};
+var pkgJSON$2 = {
+	scripts: scripts$2,
+	devDependencies: devDependencies$3
+};
+
+var devDependencies$4 = {
+	"eslint-plugin-jest": "^22.4.1"
+};
+var jestPkgJSON = {
+	devDependencies: devDependencies$4
+};
+
+var devDependencies$5 = {
+	"eslint-config-prettier": "^6.5.0",
+	"eslint-plugin-prettier": "^3.1.1"
+};
+var prettierPkgJSON = {
+	devDependencies: devDependencies$5
+};
+
+class ESLintPlugin extends BasePlugin {
+    constructor() {
+        super(Plugin.ESLint);
+        this.eslintName = '.eslintrc';
+        this.eslintIgnoreName = '.eslintignore';
+    }
+    handle() {
+        // 修改 JSON 部分
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$2));
+        // 拷贝配置文件
+        const genDir = path.resolve(__dirname, 'generator');
+        fsExtra.copySync(path.resolve(genDir, this.eslintName), path.resolve(this.projectDir, this.eslintName));
+        fsExtra.copySync(path.resolve(genDir, this.eslintIgnoreName), path.resolve(this.projectDir, this.eslintIgnoreName));
+    }
+    // 同时集成其他开源组件
+    integrated() {
+        if (this.plugins.includes(Plugin.Jest)) {
+            this.integratedJest();
+        }
+        if (this.plugins.includes(Plugin.Prettier)) {
+            this.integratedPrettier();
+        }
+    }
+    // 处理与 jest 的集成
+    integratedJest() {
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, jestPkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, this.eslintName), json => {
+            json.env = Object.assign(Object.assign({}, json.env), { 'jest/globals': true });
+        });
+    }
+    // 处理与 prettier 的集成
+    integratedPrettier() {
+        // 更新依赖
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, prettierPkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, this.eslintName), json => {
+            json.extends = [...json.extends, 'plugin:prettier/recommended'];
+        });
+    }
+}
+
+var scripts$3 = {
+};
+var devDependencies$6 = {
+	prettier: "^1.18.2",
 	"prettier-config-standard": "^1.0.1"
 };
+var pkgJSON$3 = {
+	scripts: scripts$3,
+	devDependencies: devDependencies$6
+};
 
-/**
- * 初始化 prettier 标准格式化工具
- * @param projectDir
- */
-function initPrettier(projectDir) {
-    //更新 package.json
-    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
-        json.devDependencies = Object.assign(Object.assign({}, json.devDependencies), dep$3);
-        json.scripts = Object.assign(Object.assign({}, json.scripts), { format: 'prettier --write src/**/*.js' });
-    });
-    //拷贝配置文件
-    fsExtra.copySync(path.resolve(__dirname, 'generator/.prettierrc.js'), path.resolve(projectDir, '.prettierrc.js'));
+class PrettierPlugin extends BasePlugin {
+    constructor() {
+        super(Plugin.Prettier);
+        this.prettierName = '.prettierrc.js';
+    }
+    handle() {
+        //更新 package.json
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$3));
+        //拷贝配置文件
+        fsExtra.copySync(path.resolve(__dirname, 'generator', this.prettierName), path.resolve(this.projectDir, this.prettierName));
+    }
 }
 
-var esdoc = "^1.1.0";
-var dep$4 = {
-	esdoc: esdoc,
+var scripts$4 = {
+	docs: "esdoc"
+};
+var devDependencies$7 = {
+	esdoc: "^1.1.0",
 	"esdoc-standard-plugin": "^1.0.0"
 };
-
-/**
- * 初始化
- * @param projectDir
- */
-function initESDoc(projectDir) {
-    //更新 json 文件
-    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
-        json.devDependencies = Object.assign(Object.assign({}, json.devDependencies), dep$4);
-        json.scripts = Object.assign(Object.assign({}, json.scripts), { docs: 'esdoc' });
-    });
-    // 拷贝配置文件
-    fsExtra.copySync(path.resolve(__dirname, './generator/.esdoc.json'), path.resolve(projectDir, '.esdoc.json'));
-}
-
-var husky = "^3.0.5";
-var dep$5 = {
-	husky: husky,
-	"lint-staged": "^9.3.0"
+var pkgJSON$4 = {
+	scripts: scripts$4,
+	devDependencies: devDependencies$7
 };
 
-//初始化 lint-staged
-function initStaged(projectDir) {
-    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
-        json.devDependencies = Object.assign(Object.assign({}, json.devDependencies), dep$5);
-    });
-    fsExtra.copySync(path.resolve(__dirname, 'generator/.huskyrc'), path.resolve(projectDir, '.huskyrc'));
-    fsExtra.copySync(path.resolve(__dirname, 'generator/.lintstagedrc'), path.resolve(projectDir, '.lintstagedrc'));
+/**
+ * ESDoc 插件
+ */
+class ESDocPlugin extends BasePlugin {
+    constructor() {
+        super(Plugin.ESLint);
+    }
+    handle() {
+        // 拷贝配置文件
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$4));
+        // 拷贝配置文件
+        const configName = '.esdoc.json';
+        fsExtra.copySync(path.resolve(__dirname, 'generator', configName), path.resolve(this.projectDir, configName));
+    }
 }
 
-// 初始化 license
-function initLicense(projectDir, license) {
-    console.log(lodash.last(projectDir.split(path.sep)));
-    createLicense(projectDir, license, {
-        year: new Date().getFullYear(),
-        author: username.sync(),
-        project: lodash.last(projectDir.split(path.sep)),
-    });
+var devDependencies$8 = {
+	husky: "^3.0.5",
+	"lint-staged": "^9.3.0"
+};
+var pkgJSON$5 = {
+	devDependencies: devDependencies$8
+};
+
+/**
+ * 初始化 lint-staged
+ */
+class StagedPlugin extends BasePlugin {
+    constructor() {
+        super(Plugin.Staged);
+        this.huskyName = '.huskyrc';
+        this.lintStagedName = '.lintstagedrc';
+    }
+    handle() {
+        if (!this.plugins.includes(Plugin.ESLint) ||
+            !this.plugins.includes(Plugin.Prettier)) {
+            throw new Error('初始化 staged 必须包含 ESLint 与 Prettier 插件！');
+        }
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$5));
+        fsExtra.copySync(path.resolve(__dirname, 'generator', this.huskyName), path.resolve(this.projectDir, this.huskyName));
+        fsExtra.copySync(path.resolve(__dirname, 'generator', this.lintStagedName), path.resolve(this.projectDir, this.lintStagedName));
+    }
 }
 
-const licenseType = [
+/**
+ * license 插件
+ */
+class LicensePlugin extends BasePlugin {
+    constructor() {
+        super(Plugin.LICENSE);
+    }
+    handle() {
+        createLicense(this.projectDir, this.license, {
+            year: new Date().getFullYear(),
+            author: username.sync(),
+            project: lodash.last(this.projectDir.split(path.sep)),
+        });
+    }
+}
+
+const licenseTypeList = [
     'agpl',
     'apache',
     'artistic',
@@ -394,7 +465,7 @@ const licenseType = [
     'mozilla',
     'no-license',
     'unlicense',
-    'wtfpl'
+    'wtfpl',
 ];
 
 /**
@@ -404,17 +475,56 @@ const licenseType = [
  * 4. 初始化安装和运行
  */
 const program = new commander.Command();
-// 一些参数
-program
-    .option('-d, --debug', '输出内部调试信息')
-    // 版本号
-    .version(appInfo.version, '-v, --version', '@liuli-moe/cli 的版本');
 /**
- * 检查项目名是否在当前目录已经存在
- * @param projectDir
+ * 询问一些选项
  */
-function checkDirExist(projectDir) {
+function promptInput() {
     return __awaiter(this, void 0, void 0, function* () {
+        return inquirer.prompt([
+            {
+                type: 'checkbox',
+                name: 'options',
+                message: '请选择需要的组件',
+                suffix: '请按下空格',
+                choices: [...Object.keys(Plugin)]
+                    .filter(k => isNaN(k))
+                    .map((k, i) => ({
+                    name: k,
+                    value: Plugin[k],
+                    checked: i === 0,
+                })),
+            },
+        ]);
+    });
+}
+/**
+ * 选择一个许可证
+ */
+function promptLicense() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { options } = yield inquirer.prompt([
+            {
+                type: 'list',
+                name: 'options',
+                message: '请选择需要的许可证',
+                default: 'mit',
+                choices: licenseTypeList.map((license, i) => ({
+                    name: license,
+                    checked: i === 0,
+                })),
+            },
+        ]);
+        return options;
+    });
+}
+/**
+ * 创建一个 JavaScript 项目
+ * @param projectPath 项目相对路径
+ */
+function createJavaScriptFunc(projectPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // 获取当前路径
+        const projectDir = path.resolve(process.cwd(), projectPath);
         // 检查文件夹是否已存在
         if (fsExtra.pathExistsSync(projectDir)) {
             const { isCovering } = yield inquirer.prompt([
@@ -425,64 +535,10 @@ function checkDirExist(projectDir) {
                     default: false,
                 },
             ]);
-            return !isCovering;
-        }
-    });
-}
-/**
- * 询问一些选项
- */
-function promptInput() {
-    return inquirer.prompt([
-        {
-            type: 'checkbox',
-            name: 'options',
-            message: '请选择需要的组件',
-            suffix: '请按下空格',
-            choices: [
-                {
-                    name: Plugin.BabelPlugin,
-                    checked: true,
-                },
-                {
-                    name: Plugin.ESLintPlugin,
-                    checked: false,
-                },
-                {
-                    name: Plugin.PrettierPlugin,
-                    checked: false,
-                },
-                {
-                    name: Plugin.JestPlugin,
-                    checked: false,
-                },
-                {
-                    name: Plugin.ESDocPlugin,
-                    checked: false,
-                },
-            ],
-        },
-    ]);
-}
-/**
- * 下载模板项目
- * @param projectName
- */
-function downloadTemplate(projectName) {
-    return fsExtra.copySync(path.resolve(__dirname, '../template/javascript'), path.resolve(process.cwd(), 'projectName'));
-}
-// 创建子命令 create
-program
-    .command('create <project-name>')
-    .description('创建一个 JavaScript SDK 项目')
-    .action(function (projectName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // 获取当前路径
-        const currentPath = path.resolve(process.cwd());
-        const projectDir = path.resolve(currentPath, projectName);
-        if (yield checkDirExist(projectDir)) {
-            console.log('已取消');
-            return;
+            if (!isCovering) {
+                console.log('已取消');
+                return;
+            }
         }
         fsExtra.removeSync(projectDir);
         // 询问选项
@@ -490,55 +546,87 @@ program
         if (!settings) {
             return;
         }
-        try {
-            // 下载基本模板
-            yield downloadTemplate(projectName);
-        }
-        catch (err) {
-            console.log(err);
-            return;
-        }
+        // 复制基本模板
+        fsExtra.copySync(path.resolve(__dirname, '../template/javascript'), projectDir);
         // 初始化项目，例如修改项目名
         initProject(projectDir);
         // 初始化 babel
         const options = settings.options;
-        if (options.includes(Plugin.BabelPlugin)) {
-            initBabel(projectDir);
+        const plugins = [];
+        if (options.includes(Plugin.Babel)) {
+            const plugin = new BabelPlugin();
+            plugin.projectDir = projectDir;
+            plugins.push(plugin);
         }
-        if (options.includes(Plugin.JestPlugin)) {
-            initJestJS(projectDir);
+        if (options.includes(Plugin.Jest)) {
+            if (!options.includes(Plugin.Babel)) {
+                const { confirm } = yield inquirer.prompt([
+                    {
+                        type: 'confirm',
+                        name: 'confirm',
+                        message: '如果选择了 Jest 插件，则必须选择 Babel 插件，是否选择 Babel 并继续？',
+                        default: true,
+                    },
+                ]);
+                if (!confirm) {
+                    console.log('已取消');
+                    return;
+                }
+                const plugin = new BabelPlugin();
+                plugin.projectDir = projectDir;
+                plugins.push(plugin);
+            }
+            const plugin = new JestPlugin();
+            plugin.projectDir = projectDir;
+            plugins.push(plugin);
         }
-        if (options.includes(Plugin.ESLintPlugin)) {
-            initESLint(projectDir, options);
+        if (options.includes(Plugin.ESLint)) {
+            const plugin = new ESLintPlugin();
+            plugin.projectDir = projectDir;
+            plugins.push(plugin);
         }
-        if (options.includes(Plugin.PrettierPlugin)) {
-            initPrettier(projectDir);
+        if (options.includes(Plugin.Prettier)) {
+            const plugin = new PrettierPlugin();
+            plugin.projectDir = projectDir;
+            plugins.push(plugin);
         }
         if (options.includes(Plugin.Staged)) {
-            initStaged(projectDir);
+            const plugin = new StagedPlugin();
+            plugin.projectDir = projectDir;
+            plugins.push(plugin);
         }
-        if (options.includes(Plugin.ESDocPlugin)) {
-            initESDoc(projectDir);
+        if (options.includes(Plugin.ESDoc)) {
+            const plugin = new ESDocPlugin();
+            plugin.projectDir = projectDir;
+            plugins.push(plugin);
         }
         if (options.includes(Plugin.LICENSE)) {
-            const license = yield inquirer.prompt([
-                {
-                    type: 'list',
-                    name: 'options',
-                    message: '请选择需要的许可证',
-                    choices: licenseType.map((license, i) => ({
-                        name: license,
-                        checked: i === 0
-                    }))
-                },
-            ]);
+            const license = yield promptLicense();
             console.log(license);
-            initLicense(projectDir, license);
+            const plugin = new LicensePlugin();
+            plugin.projectDir = projectDir;
+            plugin.license = license;
+            plugins.push(plugin);
         }
+        const pluginIdList = plugins.map(plugin => plugin.id);
+        plugins
+            .map(plugin => {
+            plugin.plugins = pluginIdList;
+            plugin.handle();
+            return plugin;
+        })
+            .forEach(plugin => plugin.integrated());
         // 做最后的准备工作
         execReady(projectDir);
-        return;
     });
-});
+}
+program
+    .option('-d, --debug', '输出内部调试信息')
+    // 版本号
+    .version(appInfo.version, '-v, --version', '@liuli-moe/cli 的版本')
+    //子命令 create
+    .command('create <project-name>')
+    .description('创建一个 JavaScript SDK 项目')
+    .action(createJavaScriptFunc);
 // 真正开始解析命令
 program.parse(process.argv);

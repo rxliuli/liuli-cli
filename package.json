@@ -10,7 +10,7 @@
     "li": "./bin/li.js"
   },
   "scripts": {
-    "li": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts create test/node-example",
+    "li": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
     "dev": "nodemon -w src/li.ts --exec \"yarn li\"",
     "build": "rollup -c rollup.config.js",
     "test:create": "yarn li test/node-example",
