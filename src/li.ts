@@ -16,6 +16,7 @@ import { LicensePlugin } from './plugin/license'
 import { licenseTypeList } from './plugin/license/licenseTypeList'
 import { BasePlugin } from './plugin/base/BasePlugin'
 import { LicenseType } from 'create-license'
+import { TemplateType } from './util/TemplateType'
 
 /**
  * 1. 向用户询问一些选项
@@ -62,6 +63,25 @@ async function promptLicense(): Promise<LicenseType> {
     },
   ])
   return options as any
+}
+
+/**
+ * 询问模板的类型
+ */
+async function promptTemplateType(): Promise<TemplateType> {
+  const { type } = await prompt([
+    {
+      type: 'list',
+      name: 'type',
+      message: '请选择需要的许可证',
+      default: 'mit',
+      choices: Object.values(TemplateType).map((name, i) => ({
+        name,
+        checked: i === 0,
+      })),
+    },
+  ])
+  return type as any
 }
 
 /**
@@ -173,6 +193,18 @@ async function createJavaScriptFunc(projectPath: string) {
   execReady(projectDir)
 }
 
+/**
+ * 创建一个 TypeScript 项目
+ * @param projectPath 项目相对路径
+ */
+async function createTypeScriptFunc(projectPath: string) {}
+
+/**
+ * 创建一个 Cli 项目
+ * @param projectPath
+ */
+async function createCliFunc(projectPath: string) {}
+
 program
   .option('-d, --debug', '输出内部调试信息')
   // 版本号
@@ -180,7 +212,19 @@ program
   //子命令 create
   .command('create <project-name>')
   .description('创建一个 JavaScript SDK 项目')
-  .action(createJavaScriptFunc)
+  .action(async projectPath => {
+    switch (await promptTemplateType()) {
+      case TemplateType.JavaScript:
+        await createJavaScriptFunc(projectPath)
+        break
+      case TemplateType.TypeScript:
+        await createTypeScriptFunc(projectPath)
+        break
+      case TemplateType.Cli:
+        await createCliFunc(projectPath)
+        break
+    }
+  })
 
 // 真正开始解析命令
 program.parse(process.argv)
