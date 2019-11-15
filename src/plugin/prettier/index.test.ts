@@ -1,8 +1,5 @@
-import { initPrettier, PrettierPlugin } from './index'
-import { resolve } from 'path'
-import appRoot from 'app-root-path'
-import { copySync, removeSync } from 'fs-extra'
-import { BabelPlugin, initBabel } from '../babel'
+import { PrettierPlugin } from './index'
+import { BabelPlugin } from '../babel'
 import { execReady } from '../../execReady'
 import { initTestEnv } from '../../util/initTestEnv'
 

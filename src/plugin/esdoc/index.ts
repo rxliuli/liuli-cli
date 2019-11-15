@@ -26,26 +26,3 @@ export class ESDocPlugin extends BasePlugin {
     )
   }
 }
-
-/**
- * 初始化
- * @param projectDir
- */
-export function initESDoc(projectDir: string) {
-  //更新 json 文件
-  updateJSONFile(resolve(projectDir, 'package.json'), json => {
-    json.devDependencies = {
-      ...json.devDependencies,
-      ...pkgJSON,
-    }
-    json.scripts = {
-      ...json.scripts,
-      docs: 'esdoc',
-    }
-  })
-  // 拷贝配置文件
-  copySync(
-    resolve(__dirname, './generator/.esdoc.json'),
-    resolve(projectDir, '.esdoc.json'),
-  )
-}

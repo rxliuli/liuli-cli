@@ -1,7 +1,4 @@
-import { BabelPlugin, initBabel } from '.'
-import { resolve } from 'path'
-import { copySync, removeSync } from 'fs-extra'
-import appRoot from 'app-root-path'
+import { BabelPlugin } from '.'
 import { initTestEnv } from '../../util/initTestEnv'
 
 describe('测试 babel 插件', () => {
