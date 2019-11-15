@@ -1,4 +1,4 @@
-import { JSPlugin } from './constant'
+import { JSPlugin, TSPlugin } from './constant'
 
 /**
  * 基础的插件接口，所有的接口
@@ -11,13 +11,13 @@ export abstract class BasePlugin {
   /**
    * 项目的插件 ID
    */
-  public readonly id: JSPlugin
+  public readonly id: JSPlugin | TSPlugin
   /**
    * 项目依赖的插件 ID 列表
    */
   public plugins: JSPlugin[] = []
 
-  protected constructor(id: JSPlugin) {
+  protected constructor(id: JSPlugin | TSPlugin) {
     this.id = id
   }
 
