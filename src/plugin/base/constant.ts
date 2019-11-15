@@ -1,9 +1,23 @@
-export enum Plugin {
+/**
+ * JS 插件
+ */
+export enum JSPlugin {
   Babel,
   ESLint,
   Prettier,
   Jest,
   ESDoc,
   Staged,
-  LICENSE,
+  License,
+}
+
+/**
+ * TS 的插件
+ */
+export enum TSPlugin {
+  Prettier,
+  Jest,
+  TypeDoc,
+  Staged,
+  License,
 }

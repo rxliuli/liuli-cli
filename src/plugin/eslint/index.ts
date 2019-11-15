@@ -3,7 +3,7 @@ import { copySync } from 'fs-extra'
 import pkgJSON from './generator/package.json'
 import jestPkgJSON from './generator/jest.package.json'
 import prettierPkgJSON from './generator/prettier.package.json'
-import { Plugin } from '../base/constant'
+import { JSPlugin } from '../base/constant'
 import { updateJSONFile } from '../../util/updateJSONFile'
 import { BasePlugin } from '../base/BasePlugin'
 import merge from 'deepmerge'
@@ -12,7 +12,7 @@ export class ESLintPlugin extends BasePlugin {
   private eslintName = '.eslintrc'
   private eslintIgnoreName = '.eslintignore'
   constructor() {
-    super(Plugin.ESLint)
+    super(JSPlugin.ESLint)
   }
   handle(): void {
     // 修改 JSON 部分
@@ -32,10 +32,10 @@ export class ESLintPlugin extends BasePlugin {
   }
   // 同时集成其他开源组件
   public integrated() {
-    if (this.plugins.includes(Plugin.Jest)) {
+    if (this.plugins.includes(JSPlugin.Jest)) {
       this.integratedJest()
     }
-    if (this.plugins.includes(Plugin.Prettier)) {
+    if (this.plugins.includes(JSPlugin.Prettier)) {
       this.integratedPrettier()
     }
   }
@@ -67,7 +67,7 @@ export class ESLintPlugin extends BasePlugin {
 /**
  * 初始化 ESLint
  */
-export function initESLint(projectDir: string, plugins: Plugin[] = []) {
+export function initESLint(projectDir: string, plugins: JSPlugin[] = []) {
   // 修改 JSON 部分
   updateJSONFile(resolve(projectDir, 'package.json'), json => {
     json.devDependencies = {
@@ -90,10 +90,10 @@ export function initESLint(projectDir: string, plugins: Plugin[] = []) {
     resolve(projectDir, eslintIgnoreName),
   )
 
-  if (plugins.includes(Plugin.Jest)) {
+  if (plugins.includes(JSPlugin.Jest)) {
     integratedJest(projectDir)
   }
-  if (plugins.includes(Plugin.Prettier)) {
+  if (plugins.includes(JSPlugin.Prettier)) {
     integratedPrettier(projectDir)
   }
 }

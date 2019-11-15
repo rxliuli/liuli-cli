@@ -6,7 +6,7 @@ import { execReady } from './execReady'
 import { initProject } from './initProject'
 import { BabelPlugin } from './plugin/babel'
 import { copySync, pathExistsSync, removeSync } from 'fs-extra'
-import { Plugin } from './plugin/base/constant'
+import { JSPlugin, TSPlugin } from './plugin/base/constant'
 import { JestPlugin } from './plugin/jest'
 import { ESLintPlugin } from './plugin/eslint'
 import { PrettierPlugin } from './plugin/prettier'
@@ -29,18 +29,18 @@ const program = new Command()
 /**
  * 询问一些选项
  */
-async function promptInput() {
+async function promptInput(plugin: typeof JSPlugin | typeof TSPlugin) {
   return prompt([
     {
       type: 'checkbox',
       name: 'options',
       message: '请选择需要的组件',
       suffix: '请按下空格',
-      choices: [...Object.keys(Plugin)]
+      choices: [...Object.keys(plugin)]
         .filter(k => isNaN(k as any))
         .map((k, i) => ({
           name: k,
-          value: Plugin[k as any],
+          value: plugin[k as any],
           checked: i === 0,
         })),
     },
@@ -108,7 +108,7 @@ async function createJavaScriptFunc(projectPath: string) {
   }
   removeSync(projectDir)
   // 询问选项
-  const settings = await promptInput()
+  const settings = await promptInput(JSPlugin)
   if (!settings) {
     return
   }
@@ -120,15 +120,15 @@ async function createJavaScriptFunc(projectPath: string) {
   initProject(projectDir)
 
   // 初始化 babel
-  const options: Plugin[] = settings.options
+  const options: JSPlugin[] = settings.options
   const plugins: BasePlugin[] = []
-  if (options.includes(Plugin.Babel)) {
+  if (options.includes(JSPlugin.Babel)) {
     const plugin = new BabelPlugin()
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
-  if (options.includes(Plugin.Jest)) {
-    if (!options.includes(Plugin.Babel)) {
+  if (options.includes(JSPlugin.Jest)) {
+    if (!options.includes(JSPlugin.Babel)) {
       const { confirm } = await prompt([
         {
           type: 'confirm',
@@ -150,28 +150,28 @@ async function createJavaScriptFunc(projectPath: string) {
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
-  if (options.includes(Plugin.ESLint)) {
+  if (options.includes(JSPlugin.ESLint)) {
     const plugin = new ESLintPlugin()
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
-  if (options.includes(Plugin.Prettier)) {
+  if (options.includes(JSPlugin.Prettier)) {
     const plugin = new PrettierPlugin()
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
-  if (options.includes(Plugin.Staged)) {
+  if (options.includes(JSPlugin.Staged)) {
     const plugin = new StagedPlugin()
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
-  if (options.includes(Plugin.ESDoc)) {
+  if (options.includes(JSPlugin.ESDoc)) {
     const plugin = new ESDocPlugin()
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
 
-  if (options.includes(Plugin.LICENSE)) {
+  if (options.includes(JSPlugin.License)) {
     const license = await promptLicense()
     console.log(license)
     const plugin = new LicensePlugin()
@@ -197,7 +197,27 @@ async function createJavaScriptFunc(projectPath: string) {
  * 创建一个 TypeScript 项目
  * @param projectPath 项目相对路径
  */
-async function createTypeScriptFunc(projectPath: string) {}
+async function createTypeScriptFunc(projectPath: string) {
+  // 获取当前路径
+  const projectDir = resolve(process.cwd(), projectPath)
+  // 检查文件夹是否已存在
+  if (pathExistsSync(projectDir)) {
+    const { isCovering } = await prompt([
+      {
+        type: 'confirm',
+        name: 'isCovering',
+        message: '文件夹已存在，是否确认覆盖？',
+        default: false,
+      },
+    ])
+    if (!isCovering) {
+      console.log('已取消')
+      return
+    }
+  }
+  removeSync(projectDir)
+  const settings = await promptInput(TSPlugin)
+}
 
 /**
  * 创建一个 Cli 项目

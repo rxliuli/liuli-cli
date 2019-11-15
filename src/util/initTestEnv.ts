@@ -13,3 +13,11 @@ export function initTestEnv() {
   copySync(resolve(projectDir, 'template/javascript'), path)
   return path
 }
+
+export function initTestEnvTS() {
+  const projectDir = appRoot.path
+  const path = resolve(projectDir, 'test/typescript-template')
+  removeSync(path)
+  copySync(resolve(projectDir, 'template/typescript'), path)
+  return path
+}

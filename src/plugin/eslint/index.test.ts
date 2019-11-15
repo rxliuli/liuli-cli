@@ -1,6 +1,6 @@
 import { ESLintPlugin } from './index'
 import { execReady } from '../../execReady'
-import { Plugin } from '../base/constant'
+import { JSPlugin } from '../base/constant'
 import { JestPlugin } from '../jest'
 import { BabelPlugin } from '../babel'
 import { PrettierPlugin } from '../prettier'
@@ -30,7 +30,7 @@ describe('测试 eslint js 插件', () => {
       jestPlugin.handle()
       const eslintPlugin = new ESLintPlugin()
       eslintPlugin.projectDir = path
-      eslintPlugin.plugins = [Plugin.Jest]
+      eslintPlugin.plugins = [JSPlugin.Jest]
       eslintPlugin.handle()
     })
     it('集成测试 eslint + prettier', () => {
@@ -39,7 +39,7 @@ describe('测试 eslint js 插件', () => {
       prettierPlugin.handle()
       const eslintPlugin = new ESLintPlugin()
       eslintPlugin.projectDir = path
-      eslintPlugin.plugins = [Plugin.Prettier]
+      eslintPlugin.plugins = [JSPlugin.Prettier]
       eslintPlugin.handle()
     })
   })
@@ -53,11 +53,11 @@ describe('测试 eslint js 插件', () => {
       eslintPlugin.handle()
     })
     it('单独测试 eslint + jest 集成', () => {
-      eslintPlugin.plugins = [Plugin.Jest]
+      eslintPlugin.plugins = [JSPlugin.Jest]
       eslintPlugin.integrated()
     })
     it('单独测试 eslint + prettier 集成', () => {
-      eslintPlugin.plugins = [Plugin.Prettier]
+      eslintPlugin.plugins = [JSPlugin.Prettier]
       eslintPlugin.integrated()
     })
   })

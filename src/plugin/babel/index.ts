@@ -16,14 +16,14 @@ import {
 import { parseExpression } from '@babel/parser'
 import { findLastIndex } from 'lodash'
 import { BasePlugin } from '../base/BasePlugin'
-import { Plugin } from '../base/constant'
+import { JSPlugin } from '../base/constant'
 import { updateJSONFile } from '../../util/updateJSONFile'
 import { copySync, readFileSync, writeFileSync } from 'fs-extra'
 import merge from 'deepmerge'
 
 export class BabelPlugin extends BasePlugin {
   constructor() {
-    super(Plugin.Babel)
+    super(JSPlugin.Babel)
   }
   handle(): void {
     updateJSONFile(resolve(this.projectDir, 'package.json'), json =>

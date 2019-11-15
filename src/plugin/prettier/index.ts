@@ -3,14 +3,14 @@ import { updateJSONFile } from '../../util/updateJSONFile'
 import pkgJSON from './generator/package.json'
 import { copySync } from 'fs-extra'
 import { BasePlugin } from '../base/BasePlugin'
-import { Plugin } from '../base/constant'
+import { JSPlugin } from '../base/constant'
 import merge from 'deepmerge'
 
 export class PrettierPlugin extends BasePlugin {
   private prettierName = '.prettierrc.js'
 
   constructor() {
-    super(Plugin.Prettier)
+    super(JSPlugin.Prettier)
   }
 
   handle(): void {

@@ -3,7 +3,7 @@ import { resolve } from 'path'
 import { updateJSONFile } from '../../util/updateJSONFile'
 import pkgJSON from './generator/package.json'
 import { BasePlugin } from '../base/BasePlugin'
-import { Plugin } from '../base/constant'
+import { JSPlugin } from '../base/constant'
 import merge from 'deepmerge'
 
 /**
@@ -14,13 +14,13 @@ export class StagedPlugin extends BasePlugin {
   private lintStagedName = '.lintstagedrc'
 
   constructor() {
-    super(Plugin.Staged)
+    super(JSPlugin.Staged)
   }
 
   handle(): void {
     if (
-      !this.plugins.includes(Plugin.ESLint) ||
-      !this.plugins.includes(Plugin.Prettier)
+      !this.plugins.includes(JSPlugin.ESLint) ||
+      !this.plugins.includes(JSPlugin.Prettier)
     ) {
       throw new Error('初始化 staged 必须包含 ESLint 与 Prettier 插件！')
     }

@@ -3,7 +3,7 @@ import pkgJSON from './generator/package.json'
 import { resolve } from 'path'
 import { copySync } from 'fs-extra'
 import { BasePlugin } from '../base/BasePlugin'
-import { Plugin } from '../base/constant'
+import { JSPlugin } from '../base/constant'
 import merge from 'deepmerge'
 
 /**
@@ -11,7 +11,7 @@ import merge from 'deepmerge'
  */
 export class ESDocPlugin extends BasePlugin {
   constructor() {
-    super(Plugin.ESLint)
+    super(JSPlugin.ESLint)
   }
   handle(): void {
     // 拷贝配置文件

@@ -1,7 +1,7 @@
 import { StagedPlugin } from './index'
 import { ESLintPlugin } from '../eslint'
 import { PrettierPlugin } from '../prettier'
-import { Plugin } from '../base/constant'
+import { JSPlugin } from '../base/constant'
 import { initTestEnv } from '../../util/initTestEnv'
 
 describe('测试 staged', function() {
@@ -15,11 +15,11 @@ describe('测试 staged', function() {
     prettierPlugin.handle()
     const eslintPlugin = new ESLintPlugin()
     eslintPlugin.projectDir = path
-    eslintPlugin.plugins.push(Plugin.Prettier)
+    eslintPlugin.plugins.push(JSPlugin.Prettier)
     eslintPlugin.handle()
     const stagedPlugin = new StagedPlugin()
     stagedPlugin.projectDir = path
-    stagedPlugin.plugins.push(Plugin.Prettier, Plugin.ESLint)
+    stagedPlugin.plugins.push(JSPlugin.Prettier, JSPlugin.ESLint)
     stagedPlugin.handle()
   })
 })

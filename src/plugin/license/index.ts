@@ -3,7 +3,7 @@ import { sep } from 'path'
 import { last } from 'lodash'
 import username from 'username'
 import { BasePlugin } from '../base/BasePlugin'
-import { Plugin } from '../base/constant'
+import { JSPlugin } from '../base/constant'
 
 /**
  * license 插件
@@ -11,7 +11,7 @@ import { Plugin } from '../base/constant'
 export class LicensePlugin extends BasePlugin {
   public license!: LicenseType
   constructor() {
-    super(Plugin.LICENSE)
+    super(JSPlugin.License)
   }
   handle(): void {
     createLicense(this.projectDir, this.license, {
