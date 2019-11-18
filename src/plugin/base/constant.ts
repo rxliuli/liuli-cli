@@ -15,9 +15,9 @@ export enum JSPlugin {
  * TS 的插件
  */
 export enum TSPlugin {
-  Prettier,
   Jest,
-  TypeDoc,
+  Prettier,
+  // TypeDoc,
   Staged,
   License,
 }
