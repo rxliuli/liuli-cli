@@ -5,7 +5,7 @@ import { prompt } from 'inquirer'
 import { execReady } from './execReady'
 import { initProject } from './initProject'
 import { BabelPlugin } from './plugin/babel'
-import { copySync, pathExistsSync, removeSync } from 'fs-extra'
+import { pathExistsSync } from 'fs-extra'
 import { JSPlugin, TSPlugin } from './plugin/base/constant'
 import { JestPlugin } from './plugin/jest'
 import { ESLintPlugin } from './plugin/eslint'
@@ -231,7 +231,7 @@ async function createTypeScriptFunc(projectDir: string) {
  * 创建一个 Cli 项目
  * @param projectDir
  */
-async function createCliFunc(projectDir: string) {}
+async function createCliFunc() {}
 
 program
   .option('-d, --debug', '输出内部调试信息')
@@ -243,7 +243,7 @@ program
   )
   //子命令 create
   .command('create <project-name>')
-  .description('创建一个 JavaScript SDK 项目')
+  .description('创建一个 JavaScript/TypeScript SDK 项目')
   .action(async projectPath => {
     // 获取当前路径
     const projectDir = resolve(process.cwd(), projectPath)
@@ -270,7 +270,7 @@ program
         await createTypeScriptFunc(projectDir)
         break
       case TemplateType.Cli:
-        await createCliFunc(projectDir)
+        await createCliFunc()
         break
     }
   })
