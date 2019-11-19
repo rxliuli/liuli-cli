@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es2017"],
+    // nodejs 目前必须使用 commonjs 规范，在 ts-node 命令行选项进行覆盖
+    "module": "es2015",
+    "paths": {
+      "*": ["types/*"]
+    },
+    // 不生成 .d.ts 及其对应的 .map 文件
+    "declaration": false,
+    "declarationMap": false,
+    "outDir": "./dist",
+    "strict": true,
+    "noImplicitAny": true,
+    "baseUrl": "./",
+    //定义类型定义文件的根目录
+    "esModuleInterop": true,
+    // 引入辅助函数集
+    "importHelpers": true,
+    // 允许导入 JSON 模块
+    "resolveJsonModule": true,
+    "moduleResolution": "node"
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./node_modules"]
+}
