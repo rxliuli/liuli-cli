@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { resolve } from 'path'
+import { resolve, sep } from 'path'
 import appInfo from '../package.json'
 import { prompt } from 'inquirer'
 import { execReady } from './execReady'
@@ -18,6 +18,7 @@ import { BasePlugin } from './plugin/base/BasePlugin'
 import { LicenseType } from 'create-license'
 import { TemplateType } from './util/TemplateType'
 import { JestTSPlugin } from './plugin/jest-ts'
+import { updateJSONFile } from './util/updateJSONFile'
 
 /**
  * 1. 向用户询问一些选项
@@ -74,7 +75,7 @@ async function promptTemplateType(): Promise<TemplateType> {
     {
       type: 'list',
       name: 'type',
-      message: '请选择需要的许可证',
+      message: '请选择需要的模板',
       default: 'mit',
       choices: Object.values(TemplateType).map((name, i) => ({
         name,
@@ -158,7 +159,7 @@ async function createJavaScriptFunc(projectDir: string) {
   }
 
   // 初始化项目，例如修改项目名
-  initProject(projectDir)
+  initProject(projectDir, 'javascript')
 
   const pluginIdList = plugins.map(plugin => plugin.id)
   plugins
@@ -169,9 +170,6 @@ async function createJavaScriptFunc(projectDir: string) {
       return plugin
     })
     .forEach(plugin => plugin.integrated())
-
-  // 做最后的准备工作
-  execReady(projectDir)
 }
 
 /**
@@ -211,7 +209,7 @@ async function createTypeScriptFunc(projectDir: string) {
   }
 
   // 初始化项目，例如修改项目名
-  initProject(projectDir)
+  initProject(projectDir, 'typescript')
 
   const pluginIdList = plugins.map(plugin => plugin.id)
   plugins
@@ -222,16 +220,21 @@ async function createTypeScriptFunc(projectDir: string) {
       return plugin
     })
     .forEach(plugin => plugin.integrated())
-
-  // 做最后的准备工作
-  // execReady(projectDir)
 }
 
 /**
  * 创建一个 Cli 项目
  * @param projectDir
  */
-async function createCliFunc() {}
+async function createCliFunc(projectDir: string) {
+  // 初始化项目，例如修改项目名
+  initProject(projectDir, 'cli')
+  //更新 bin 字段
+  updateJSONFile(resolve(projectDir, 'package.json'), json => {
+    const projectPathList = projectDir.split(sep)
+    json.bin.index = `bin/${projectPathList[projectPathList.length - 1]}.js`
+  })
+}
 
 program
   .option('-d, --debug', '输出内部调试信息')
@@ -270,9 +273,11 @@ program
         await createTypeScriptFunc(projectDir)
         break
       case TemplateType.Cli:
-        await createCliFunc()
+        await createCliFunc(projectDir)
         break
     }
+    // 做最后的准备工作
+    execReady(projectDir)
   })
 
 // 真正开始解析命令
