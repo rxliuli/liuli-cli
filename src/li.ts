@@ -229,11 +229,6 @@ async function createTypeScriptFunc(projectDir: string) {
 async function createCliFunc(projectDir: string) {
   // 初始化项目，例如修改项目名
   initProject(projectDir, 'cli')
-  //更新 bin 字段
-  updateJSONFile(resolve(projectDir, 'package.json'), json => {
-    const projectPathList = projectDir.split(sep)
-    json.bin.index = `bin/${projectPathList[projectPathList.length - 1]}.js`
-  })
 }
 
 program

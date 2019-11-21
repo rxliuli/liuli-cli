@@ -2,13 +2,14 @@
   "name": "cli-template",
   "version": "0.1.0",
   "description": "nodejs cli 的模板项目",
+  "license": "MIT",
   "bin": {
-    "index": "bin/cli-template.js"
+    "index": "bin/index.js"
   },
   "scripts": {
     "index": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/index.ts",
-    "dev": "nodemon -w src/li.ts --exec \"yarn li\"",
     "build": "rollup -c rollup.config.js",
+    "clean": "rimraf bin/",
     "link:add": "yarn link && yarn link %npm_package_name%",
     "link:remove": "yarn unlink %npm_package_name% && yarn unlink",
     "postinstall": "yarn link:add && yarn link:remove && yarn link:add",

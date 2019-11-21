@@ -141,17 +141,31 @@ function execReady(projectDir) {
 }
 
 /**
+ * 更新 json 文件
+ * @param file
+ * @param fn
+ */
+function updateJSONFile(file, fn) {
+    const path$1 = path.resolve(file);
+    const json = fsExtra.readJSONSync(path$1);
+    const res = fn(json);
+    fsExtra.writeJSONSync(path$1, res === undefined ? json : res, {
+        spaces: 2,
+    });
+}
+
+/**
  * 一些初始化操作，修改项目名
  * @param projectDir
+ * @param template
  */
-function initProject(projectDir) {
+function initProject(projectDir, template) {
     fsExtra.removeSync(projectDir);
-    fsExtra.copySync(path.resolve(__dirname, '../template/javascript'), projectDir);
-    const packagePath = path.resolve(projectDir, 'package.json');
-    const json = fsExtra.readJSONSync(packagePath);
-    const projectPathList = projectDir.split(path.sep);
-    json.name = projectPathList[projectPathList.length - 1];
-    fsExtra.writeJSONSync(packagePath, json);
+    fsExtra.copySync(path.resolve(__dirname, `../template/${template}`), projectDir);
+    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
+        const projectPathList = projectDir.split(path.sep);
+        json.name = projectPathList[projectPathList.length - 1];
+    });
 }
 
 var devDependencies$1 = {
@@ -208,20 +222,6 @@ var TSPlugin;
     TSPlugin[TSPlugin["Staged"] = 2] = "Staged";
     TSPlugin[TSPlugin["License"] = 3] = "License";
 })(TSPlugin || (TSPlugin = {}));
-
-/**
- * 更新 json 文件
- * @param file
- * @param fn
- */
-function updateJSONFile(file, fn) {
-    const path$1 = path.resolve(file);
-    const json = fsExtra.readJSONSync(path$1);
-    const res = fn(json);
-    fsExtra.writeJSONSync(path$1, res === undefined ? json : res, {
-        spaces: 2,
-    });
-}
 
 class BabelPlugin extends BasePlugin {
     constructor() {
@@ -605,7 +605,7 @@ function promptTemplateType() {
             {
                 type: 'list',
                 name: 'type',
-                message: '请选择需要的许可证',
+                message: '请选择需要的模板',
                 default: 'mit',
                 choices: Object.values(TemplateType).map((name, i) => ({
                     name,
@@ -686,7 +686,7 @@ function createJavaScriptFunc(projectDir) {
             plugins.push(plugin);
         }
         // 初始化项目，例如修改项目名
-        initProject(projectDir);
+        initProject(projectDir, 'javascript');
         const pluginIdList = plugins.map(plugin => plugin.id);
         plugins
             .map(plugin => {
@@ -696,8 +696,6 @@ function createJavaScriptFunc(projectDir) {
             return plugin;
         })
             .forEach(plugin => plugin.integrated());
-        // 做最后的准备工作
-        execReady(projectDir);
     });
 }
 /**
@@ -736,7 +734,7 @@ function createTypeScriptFunc(projectDir) {
             plugins.push(plugin);
         }
         // 初始化项目，例如修改项目名
-        initProject(projectDir);
+        initProject(projectDir, 'typescript');
         const pluginIdList = plugins.map(plugin => plugin.id);
         plugins
             .map(plugin => {
@@ -746,8 +744,6 @@ function createTypeScriptFunc(projectDir) {
             return plugin;
         })
             .forEach(plugin => plugin.integrated());
-        // 做最后的准备工作
-        // execReady(projectDir)
     });
 }
 /**
@@ -755,7 +751,10 @@ function createTypeScriptFunc(projectDir) {
  * @param projectDir
  */
 function createCliFunc(projectDir) {
-    return __awaiter(this, void 0, void 0, function* () { });
+    return __awaiter(this, void 0, void 0, function* () {
+        // 初始化项目，例如修改项目名
+        initProject(projectDir, 'cli');
+    });
 }
 program
     .option('-d, --debug', '输出内部调试信息')
@@ -763,7 +762,7 @@ program
     .version(appInfo.version, '-v, --version', `@liuli-moe/cli ${appInfo.version}`)
     //子命令 create
     .command('create <project-name>')
-    .description('创建一个 JavaScript SDK 项目')
+    .description('创建一个 JavaScript/TypeScript SDK 项目')
     .action((projectPath) => __awaiter(void 0, void 0, void 0, function* () {
     // 获取当前路径
     const projectDir = path.resolve(process.cwd(), projectPath);
@@ -790,9 +789,11 @@ program
             yield createTypeScriptFunc(projectDir);
             break;
         case TemplateType.Cli:
-            yield createCliFunc();
+            yield createCliFunc(projectDir);
             break;
     }
+    // 做最后的准备工作
+    execReady(projectDir);
 }));
 // 真正开始解析命令
 program.parse(process.argv);

@@ -11,7 +11,7 @@ export default {
     name,
     // 文件顶部信息
     banner: '#!/usr/bin/env node',
-    file: resolve(__dirname, `bin/${name}.js`),
+    file: resolve(__dirname, `bin/index.js`),
     format: 'cjs',
   },
   plugins: [
