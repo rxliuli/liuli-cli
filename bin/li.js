@@ -58,8 +58,7 @@ var scripts = {
 	"test:create": "yarn li test/node-example",
 	"link:add": "yarn link && yarn link %npm_package_name%",
 	"link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-	postinstall: "yarn link:add && yarn link:remove && yarn link:add",
-	pkg: "pkg . --out-path=dist/ -t win"
+	postinstall: "yarn link:add && yarn link:remove && yarn link:add"
 };
 var devDependencies = {
 	"@babel/types": "^7.6.3",
@@ -78,7 +77,6 @@ var devDependencies = {
 	"jest-extended": "^0.11.2",
 	nodeman: "^1.1.2",
 	nodemon: "^1.19.4",
-	pkg: "^4.4.0",
 	prettier: "^1.18.2",
 	rollup: "^1.26.2",
 	"rollup-plugin-json": "^4.0.0",
