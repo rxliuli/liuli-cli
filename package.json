@@ -4,7 +4,7 @@
   "description": "一个 JavaScript/TypeScript SDK cli 工具",
   "main": "bin/npm.js",
   "author": "rxliuli",
-  "license": "MIT",
+  "license": "mit",
   "private": true,
   "bin": {
     "li": "./bin/li.js"

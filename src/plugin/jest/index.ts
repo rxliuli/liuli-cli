@@ -11,6 +11,7 @@ import merge from 'deepmerge'
 export class JestPlugin extends BasePlugin {
   private jestName = 'jest.config.js'
   private testName = 'index.test.js'
+  private jestStartName = 'jest-start.js'
   constructor() {
     super(JSPlugin.Jest)
   }
@@ -26,6 +27,11 @@ export class JestPlugin extends BasePlugin {
       resolve(this.projectDir, this.jestName),
     )
 
+    // 拷贝测试初始环境配置文件
+    copySync(
+      resolve(__dirname, 'generator', this.jestStartName),
+      resolve(this.projectDir, 'test', this.jestStartName),
+    )
     // 拷贝一个基本的测试文件
     const path = resolve(this.projectDir, 'test', this.testName)
     copySync(resolve(__dirname, 'generator', this.testName), path)
