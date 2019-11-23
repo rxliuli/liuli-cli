@@ -31,7 +31,7 @@ export class JestPlugin extends BasePlugin {
     copySync(resolve(__dirname, 'generator', this.testName), path)
     const data = readFileSync(path, {
       encoding: 'utf8',
-    }).replace('javascript-template', last(this.projectDir.split(sep))!)
+    }).replace(/javascript-template/g, last(this.projectDir.split(sep))!)
     writeFileSync(path, data)
   }
 }

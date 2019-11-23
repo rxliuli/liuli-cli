@@ -30,7 +30,7 @@ export class JestTSPlugin extends BasePlugin {
     copySync(resolve(__dirname, 'generator', this.testName), path)
     const data = readFileSync(path, {
       encoding: 'utf8',
-    }).replace('typescript-template', last(this.projectDir.split(sep))!)
+    }).replace(/typescript-template/g, last(this.projectDir.split(sep))!)
     writeFileSync(path, data)
   }
 }

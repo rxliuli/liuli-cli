@@ -1,11 +1,11 @@
 import { Command } from 'commander'
-import { resolve } from 'path'
+import { resolve, sep } from 'path'
 import appInfo from '../package.json'
 import { prompt } from 'inquirer'
 import { execReady } from './execReady'
 import { initProject } from './initProject'
 import { BabelPlugin } from './plugin/babel'
-import { copySync, pathExistsSync, removeSync } from 'fs-extra'
+import { pathExistsSync } from 'fs-extra'
 import { JSPlugin, TSPlugin } from './plugin/base/constant'
 import { JestPlugin } from './plugin/jest'
 import { ESLintPlugin } from './plugin/eslint'
@@ -17,6 +17,8 @@ import { licenseTypeList } from './plugin/license/licenseTypeList'
 import { BasePlugin } from './plugin/base/BasePlugin'
 import { LicenseType } from 'create-license'
 import { TemplateType } from './util/TemplateType'
+import { JestTSPlugin } from './plugin/jest-ts'
+import { updateJSONFile } from './util/updateJSONFile'
 
 /**
  * 1. 向用户询问一些选项
@@ -73,7 +75,7 @@ async function promptTemplateType(): Promise<TemplateType> {
     {
       type: 'list',
       name: 'type',
-      message: '请选择需要的许可证',
+      message: '请选择需要的模板',
       default: 'mit',
       choices: Object.values(TemplateType).map((name, i) => ({
         name,
@@ -86,38 +88,14 @@ async function promptTemplateType(): Promise<TemplateType> {
 
 /**
  * 创建一个 JavaScript 项目
- * @param projectPath 项目相对路径
+ * @param projectDir 项目绝对路径
  */
-async function createJavaScriptFunc(projectPath: string) {
-  // 获取当前路径
-  const projectDir = resolve(process.cwd(), projectPath)
-  // 检查文件夹是否已存在
-  if (pathExistsSync(projectDir)) {
-    const { isCovering } = await prompt([
-      {
-        type: 'confirm',
-        name: 'isCovering',
-        message: '文件夹已存在，是否确认覆盖？',
-        default: false,
-      },
-    ])
-    if (!isCovering) {
-      console.log('已取消')
-      return
-    }
-  }
-  removeSync(projectDir)
+async function createJavaScriptFunc(projectDir: string) {
   // 询问选项
   const settings = await promptInput(JSPlugin)
   if (!settings) {
     return
   }
-
-  // 复制基本模板
-  copySync(resolve(__dirname, '../template/javascript'), projectDir)
-
-  // 初始化项目，例如修改项目名
-  initProject(projectDir)
 
   // 初始化 babel
   const options: JSPlugin[] = settings.options
@@ -180,70 +158,121 @@ async function createJavaScriptFunc(projectPath: string) {
     plugins.push(plugin)
   }
 
+  // 初始化项目，例如修改项目名
+  initProject(projectDir, 'javascript')
+
   const pluginIdList = plugins.map(plugin => plugin.id)
   plugins
     .map(plugin => {
       plugin.plugins = pluginIdList
+      plugin.type = TemplateType.JavaScript
       plugin.handle()
       return plugin
     })
     .forEach(plugin => plugin.integrated())
-
-  // 做最后的准备工作
-  execReady(projectDir)
 }
 
 /**
  * 创建一个 TypeScript 项目
- * @param projectPath 项目相对路径
+ * @param projectDir 项目绝对路径
  */
-async function createTypeScriptFunc(projectPath: string) {
-  // 获取当前路径
-  const projectDir = resolve(process.cwd(), projectPath)
-  // 检查文件夹是否已存在
-  if (pathExistsSync(projectDir)) {
-    const { isCovering } = await prompt([
-      {
-        type: 'confirm',
-        name: 'isCovering',
-        message: '文件夹已存在，是否确认覆盖？',
-        default: false,
-      },
-    ])
-    if (!isCovering) {
-      console.log('已取消')
-      return
-    }
-  }
-  removeSync(projectDir)
+async function createTypeScriptFunc(projectDir: string) {
   const settings = await promptInput(TSPlugin)
+  if (!settings) {
+    return
+  }
+
+  // 初始化 babel
+  const options: TSPlugin[] = settings.options
+  const plugins: BasePlugin[] = []
+  if (options.includes(TSPlugin.Jest)) {
+    const plugin = new JestTSPlugin()
+    plugin.projectDir = projectDir
+    plugins.push(plugin)
+  }
+  if (options.includes(TSPlugin.Prettier)) {
+    const plugin = new PrettierPlugin()
+    plugin.projectDir = projectDir
+    plugins.push(plugin)
+  }
+  if (options.includes(TSPlugin.Staged)) {
+    const plugin = new StagedPlugin()
+    plugin.projectDir = projectDir
+    plugins.push(plugin)
+  }
+  if (options.includes(TSPlugin.License)) {
+    const license = await promptLicense()
+    const plugin = new LicensePlugin()
+    plugin.projectDir = projectDir
+    plugin.license = license
+    plugins.push(plugin)
+  }
+
+  // 初始化项目，例如修改项目名
+  initProject(projectDir, 'typescript')
+
+  const pluginIdList = plugins.map(plugin => plugin.id)
+  plugins
+    .map(plugin => {
+      plugin.plugins = pluginIdList
+      plugin.type = TemplateType.TypeScript
+      plugin.handle()
+      return plugin
+    })
+    .forEach(plugin => plugin.integrated())
 }
 
 /**
  * 创建一个 Cli 项目
- * @param projectPath
+ * @param projectDir
  */
-async function createCliFunc(projectPath: string) {}
+async function createCliFunc(projectDir: string) {
+  // 初始化项目，例如修改项目名
+  initProject(projectDir, 'cli')
+}
 
 program
   .option('-d, --debug', '输出内部调试信息')
   // 版本号
-  .version(appInfo.version, '-v, --version', '@liuli-moe/cli 的版本')
+  .version(
+    appInfo.version,
+    '-v, --version',
+    `@liuli-moe/cli ${appInfo.version}`,
+  )
   //子命令 create
   .command('create <project-name>')
-  .description('创建一个 JavaScript SDK 项目')
+  .description('创建一个 JavaScript/TypeScript SDK 项目')
   .action(async projectPath => {
+    // 获取当前路径
+    const projectDir = resolve(process.cwd(), projectPath)
+    // 检查文件夹是否已存在
+    if (pathExistsSync(projectDir)) {
+      const { isCovering } = await prompt([
+        {
+          type: 'confirm',
+          name: 'isCovering',
+          message: '文件夹已存在，是否确认覆盖？',
+          default: false,
+        },
+      ])
+      if (!isCovering) {
+        console.log('已取消')
+        return
+      }
+    }
     switch (await promptTemplateType()) {
       case TemplateType.JavaScript:
-        await createJavaScriptFunc(projectPath)
+        await createJavaScriptFunc(projectDir)
         break
       case TemplateType.TypeScript:
-        await createTypeScriptFunc(projectPath)
+        await createTypeScriptFunc(projectDir)
         break
       case TemplateType.Cli:
-        await createCliFunc(projectPath)
+        await createCliFunc(projectDir)
         break
     }
+    // 做最后的准备工作
+    execReady(projectDir)
   })
 
 // 真正开始解析命令

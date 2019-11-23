@@ -1,0 +1,47 @@
+{
+  "name": "cli-template",
+  "version": "0.1.0",
+  "description": "nodejs cli 的模板项目",
+  "license": "MIT",
+  "bin": {
+    "index": "bin/index.js"
+  },
+  "scripts": {
+    "index": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/index.ts",
+    "build": "rollup -c rollup.config.js",
+    "clean": "rimraf bin/",
+    "link:add": "yarn link && yarn link %npm_package_name%",
+    "link:remove": "yarn unlink %npm_package_name% && yarn unlink",
+    "postinstall": "yarn link:add && yarn link:remove && yarn link:add",
+    "pkg": "pkg . --out-path=dist/ -t win",
+    "test": "jest --all"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^8.0.1",
+    "@types/inquirer": "^6.5.0",
+    "@types/jest": "^24.0.23",
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^12.12.9",
+    "@types/shelljs": "^0.8.6",
+    "jest": "^24.9.0",
+    "jest-extended": "^0.11.2",
+    "nodemon": "^1.19.4",
+    "pkg": "^4.4.0",
+    "prettier": "^1.19.1",
+    "rollup": "^1.27.2",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-typescript2": "^0.25.2",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.5.2",
+    "tslib": "^1.10.0",
+    "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "commander": "^4.0.1",
+    "deepmerge": "^4.2.2",
+    "fs-extra": "^8.1.0",
+    "inquirer": "^7.0.0",
+    "lodash": "^4.17.15",
+    "shelljs": "^0.8.3"
+  }
+}
