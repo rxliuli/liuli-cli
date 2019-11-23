@@ -1,5 +1,5 @@
 {
-  "name": "@liuli-moe/cli",
+  "name": "liuli-cli",
   "version": "0.1.0",
   "description": "一个 JavaScript/TypeScript SDK cli 工具",
   "main": "bin/npm.js",

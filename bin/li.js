@@ -42,12 +42,12 @@ function __awaiter(thisArg, _arguments, P, generator) {
     });
 }
 
-var name = "@liuli-moe/cli";
+var name = "liuli-cli";
 var version = "0.1.0";
 var description = "一个 JavaScript/TypeScript SDK cli 工具";
 var main = "bin/npm.js";
 var author = "rxliuli";
-var license = "MIT";
+var license = "mit";
 var bin = {
 	li: "./bin/li.js"
 };
@@ -80,7 +80,6 @@ var devDependencies = {
 	prettier: "^1.18.2",
 	rollup: "^1.26.2",
 	"rollup-plugin-json": "^4.0.0",
-	"rollup-plugin-terser": "^5.1.2",
 	"rollup-plugin-typescript2": "^0.24.3",
 	"sort-package-json": "^1.22.1",
 	"ts-jest": "^24.1.0",
@@ -95,7 +94,6 @@ var dependencies = {
 	commander: "^3.0.2",
 	"create-license": "^1.0.2",
 	deepmerge: "^4.2.2",
-	"download-git-repo": "^3.0.2",
 	"fs-extra": "^8.1.0",
 	inquirer: "^7.0.0",
 	lodash: "^4.17.15",
@@ -279,6 +277,7 @@ class JestPlugin extends BasePlugin {
         super(JSPlugin.Jest);
         this.jestName = 'jest.config.js';
         this.testName = 'index.test.js';
+        this.jestStartName = 'jest-start.js';
     }
     handle() {
         // 修改 JSON 部分
@@ -286,6 +285,8 @@ class JestPlugin extends BasePlugin {
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$1));
         // 拷贝配置文件
         fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestName), path.resolve(this.projectDir, this.jestName));
+        // 拷贝测试初始环境配置文件
+        fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
         // 拷贝一个基本的测试文件
         const path$1 = path.resolve(this.projectDir, 'test', this.testName);
         fsExtra.copySync(path.resolve(__dirname, 'generator', this.testName), path$1);
@@ -483,6 +484,9 @@ class LicensePlugin extends BasePlugin {
         super(JSPlugin.License);
     }
     handle() {
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            json.license = this.license;
+        });
         createLicense(this.projectDir, this.license, {
             year: new Date().getFullYear(),
             author: username.sync(),
@@ -529,12 +533,15 @@ class JestTSPlugin extends BasePlugin {
         super(JSPlugin.Jest);
         this.jestName = 'jest.config.js';
         this.testName = 'index.test.ts';
+        this.jestStartName = 'jest-start.ts';
     }
     handle() {
         // 修改 JSON 部分
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$6));
         // 拷贝配置文件
         fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestName), path.resolve(this.projectDir, this.jestName));
+        // 拷贝测试初始环境配置文件
+        fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
         // 拷贝一个基本的测试文件
         const path$1 = path.resolve(this.projectDir, 'test', this.testName);
         fsExtra.copySync(path.resolve(__dirname, 'generator', this.testName), path$1);

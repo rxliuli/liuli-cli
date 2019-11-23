@@ -272,7 +272,7 @@ program
         break
     }
     // 做最后的准备工作
-    // execReady(projectDir)
+    execReady(projectDir)
   })
 
 // 真正开始解析命令
