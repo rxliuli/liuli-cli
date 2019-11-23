@@ -81,7 +81,6 @@ var devDependencies = {
 	rollup: "^1.26.2",
 	"rollup-plugin-json": "^4.0.0",
 	"rollup-plugin-typescript2": "^0.24.3",
-	"sort-package-json": "^1.22.1",
 	"ts-jest": "^24.1.0",
 	"ts-node": "^8.4.1",
 	tslib: "^1.10.0",
@@ -98,6 +97,7 @@ var dependencies = {
 	inquirer: "^7.0.0",
 	lodash: "^4.17.15",
 	shelljs: "^0.8.3",
+	"sort-package-json": "^1.23.1",
 	username: "^5.1.0"
 };
 var appInfo = {
@@ -107,7 +107,6 @@ var appInfo = {
 	main: main,
 	author: author,
 	license: license,
-	"private": true,
 	bin: bin,
 	scripts: scripts,
 	devDependencies: devDependencies,
