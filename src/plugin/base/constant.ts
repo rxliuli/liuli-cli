@@ -17,7 +17,7 @@ export enum JSPlugin {
 export enum TSPlugin {
   Jest,
   Prettier,
-  // TypeDoc,
+  TypeDoc,
   Staged,
   License,
 }

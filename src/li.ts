@@ -19,6 +19,7 @@ import { LicenseType } from 'create-license'
 import { TemplateType } from './util/TemplateType'
 import { JestTSPlugin } from './plugin/jest-ts'
 import { updateJSONFile } from './util/updateJSONFile'
+import { TypeDocPlugin } from './plugin/typedoc'
 
 /**
  * 1. 向用户询问一些选项
@@ -192,6 +193,11 @@ async function createTypeScriptFunc(projectDir: string) {
   }
   if (options.includes(TSPlugin.Prettier)) {
     const plugin = new PrettierPlugin()
+    plugin.projectDir = projectDir
+    plugins.push(plugin)
+  }
+  if (options.includes(TSPlugin.TypeDoc)) {
+    const plugin = new TypeDocPlugin()
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
