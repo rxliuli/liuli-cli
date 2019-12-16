@@ -43,9 +43,9 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 var name = "liuli-cli";
-var version = "0.1.0";
+var version = "0.1.1";
 var description = "一个 JavaScript/TypeScript SDK cli 工具";
-var main = "bin/npm.js";
+var main = "bin/li.js";
 var author = "rxliuli";
 var license = "mit";
 var bin = {
@@ -213,9 +213,9 @@ var TSPlugin;
 (function (TSPlugin) {
     TSPlugin[TSPlugin["Jest"] = 0] = "Jest";
     TSPlugin[TSPlugin["Prettier"] = 1] = "Prettier";
-    // TypeDoc,
-    TSPlugin[TSPlugin["Staged"] = 2] = "Staged";
-    TSPlugin[TSPlugin["License"] = 3] = "License";
+    TSPlugin[TSPlugin["TypeDoc"] = 2] = "TypeDoc";
+    TSPlugin[TSPlugin["Staged"] = 3] = "Staged";
+    TSPlugin[TSPlugin["License"] = 4] = "License";
 })(TSPlugin || (TSPlugin = {}));
 
 class BabelPlugin extends BasePlugin {
@@ -551,6 +551,33 @@ class JestTSPlugin extends BasePlugin {
     }
 }
 
+var scripts$6 = {
+	docs: "typedoc --out docs src --exclude src/**/*.test.ts && cp README.md docs/ && cp .nojekyll docs/"
+};
+var devDependencies$a = {
+	typedoc: "^0.15.3"
+};
+var pkgJSON$7 = {
+	scripts: scripts$6,
+	devDependencies: devDependencies$a
+};
+
+/**
+ * typedoc 插件
+ */
+class TypeDocPlugin extends BasePlugin {
+    constructor() {
+        super(TSPlugin.TypeDoc);
+        this.noJekyllName = '.nojekyll';
+    }
+    handle() {
+        //更新 package.json
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$7));
+        //拷贝配置文件
+        fsExtra.copySync(path.resolve(__dirname, 'generator', this.noJekyllName), path.resolve(this.projectDir, this.noJekyllName));
+    }
+}
+
 /**
  * 1. 向用户询问一些选项
  * 2. 下载模板项目
@@ -722,6 +749,11 @@ function createTypeScriptFunc(projectDir) {
         }
         if (options.includes(TSPlugin.Prettier)) {
             const plugin = new PrettierPlugin();
+            plugin.projectDir = projectDir;
+            plugins.push(plugin);
+        }
+        if (options.includes(TSPlugin.TypeDoc)) {
+            const plugin = new TypeDocPlugin();
             plugin.projectDir = projectDir;
             plugins.push(plugin);
         }

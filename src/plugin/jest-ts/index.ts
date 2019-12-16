@@ -1,5 +1,5 @@
 import pkgJSON from './generator/package.json'
-import { copySync, readFileSync, readJSONSync, writeJSONSync } from 'fs-extra'
+import { copySync, readFileSync } from 'fs-extra'
 import { resolve, sep } from 'path'
 import { last } from 'lodash'
 import { writeFileSync } from 'fs'

@@ -2,7 +2,7 @@
   "name": "liuli-cli",
   "version": "0.1.1",
   "description": "一个 JavaScript/TypeScript SDK cli 工具",
-  "main": "bin/npm.js",
+  "main": "bin/li.js",
   "author": "rxliuli",
   "license": "mit",
   "bin": {
