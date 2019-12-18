@@ -1,9 +1,9 @@
 import { Command } from 'commander'
-import { resolve, sep } from 'path'
+import { resolve } from 'path'
 import appInfo from '../package.json'
 import { prompt } from 'inquirer'
-import { execReady } from './execReady'
-import { initProject } from './initProject'
+import { execReady } from './util/execReady'
+import { initProject } from './util/initProject'
 import { BabelPlugin } from './plugin/babel'
 import { pathExistsSync } from 'fs-extra'
 import { JSPlugin, TSPlugin } from './plugin/base/constant'
@@ -13,12 +13,11 @@ import { PrettierPlugin } from './plugin/prettier'
 import { ESDocPlugin } from './plugin/esdoc'
 import { StagedPlugin } from './plugin/staged'
 import { LicensePlugin } from './plugin/license'
-import { licenseTypeList } from './plugin/license/licenseTypeList'
+import { licenseTypeList } from './plugin/licenseTypeList'
 import { BasePlugin } from './plugin/base/BasePlugin'
 import { LicenseType } from 'create-license'
 import { TemplateType } from './util/TemplateType'
 import { JestTSPlugin } from './plugin/jest-ts'
-import { updateJSONFile } from './util/updateJSONFile'
 import { TypeDocPlugin } from './plugin/typedoc'
 
 /**
@@ -152,7 +151,6 @@ async function createJavaScriptFunc(projectDir: string) {
 
   if (options.includes(JSPlugin.License)) {
     const license = await promptLicense()
-    console.log(license)
     const plugin = new LicensePlugin()
     plugin.projectDir = projectDir
     plugin.license = license
@@ -160,7 +158,7 @@ async function createJavaScriptFunc(projectDir: string) {
   }
 
   // 初始化项目，例如修改项目名
-  initProject(projectDir, 'javascript')
+  initProject(projectDir, TemplateType.JavaScript)
 
   const pluginIdList = plugins.map(plugin => plugin.id)
   plugins
@@ -215,7 +213,7 @@ async function createTypeScriptFunc(projectDir: string) {
   }
 
   // 初始化项目，例如修改项目名
-  initProject(projectDir, 'typescript')
+  initProject(projectDir, TemplateType.TypeScript)
 
   const pluginIdList = plugins.map(plugin => plugin.id)
   plugins
@@ -234,7 +232,7 @@ async function createTypeScriptFunc(projectDir: string) {
  */
 async function createCliFunc(projectDir: string) {
   // 初始化项目，例如修改项目名
-  initProject(projectDir, 'cli')
+  initProject(projectDir, TemplateType.Cli)
 }
 
 program
@@ -266,7 +264,8 @@ program
         return
       }
     }
-    switch (await promptTemplateType()) {
+    const type = await promptTemplateType()
+    switch (type) {
       case TemplateType.JavaScript:
         await createJavaScriptFunc(projectDir)
         break

@@ -49,16 +49,15 @@ var main = "bin/li.js";
 var author = "rxliuli";
 var license = "mit";
 var bin = {
-	li: "./bin/li.js"
+	li: "bin/li.js"
 };
 var scripts = {
 	li: "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
 	dev: "nodemon -w src/li.ts --exec \"yarn li\"",
-	build: "rollup -c rollup.config.js",
+	build: "rollup -c rollup.config.js && yarn copy src/plugin/resource/ bin/resource/",
 	"test:create": "yarn li test/node-example",
-	"link:add": "yarn link && yarn link %npm_package_name%",
-	"link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-	postinstall: "yarn link:add && yarn link:remove && yarn link:add"
+	"link:add": "yarn link",
+	"link:remove": "yarn unlink"
 };
 var devDependencies = {
 	"@babel/types": "^7.6.3",
@@ -73,6 +72,7 @@ var devDependencies = {
 	"@types/shelljs": "^0.8.5",
 	"@types/username": "^3.0.0",
 	"app-root-path": "^3.0.0",
+	"copy-dir-cli": "^0.0.3",
 	jest: "^24.9.0",
 	"jest-extended": "^0.11.2",
 	nodeman: "^1.1.2",
@@ -150,16 +150,36 @@ function updateJSONFile(file, fn) {
 }
 
 /**
+ * 模板的类型
+ */
+var TemplateType;
+(function (TemplateType) {
+    TemplateType["JavaScript"] = "JavaScript \u6A21\u677F";
+    TemplateType["TypeScript"] = "TypeScript \u6A21\u677F";
+    TemplateType["Cli"] = "\u547D\u4EE4\u884C\u5DE5\u5177\u6A21\u677F";
+})(TemplateType || (TemplateType = {}));
+
+/**
  * 一些初始化操作，修改项目名
  * @param projectDir
- * @param template
+ * @param type
  */
-function initProject(projectDir, template) {
+function initProject(projectDir, type) {
     fsExtra.removeSync(projectDir);
-    fsExtra.copySync(path.resolve(__dirname, `../template/${template}`), projectDir);
+    const templateDir = type === TemplateType.JavaScript
+        ? 'javascript'
+        : type === TemplateType.TypeScript
+            ? 'typescript'
+            : 'cli';
+    fsExtra.copySync(path.resolve(__dirname, `../template/${templateDir}`), projectDir);
     updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
+        const oldName = json.name;
         const projectPathList = projectDir.split(path.sep);
         json.name = projectPathList[projectPathList.length - 1];
+        if ((type = TemplateType.JavaScript || type === TemplateType.TypeScript)) {
+            json.main = json.main.replace(oldName, json.name);
+            json.module = json.module.replace(oldName, json.name);
+        }
     });
 }
 
@@ -226,7 +246,7 @@ class BabelPlugin extends BasePlugin {
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON));
         // 复制文件
         const babelName = '.babelrc';
-        fsExtra.copySync(path.resolve(__dirname, 'generator', babelName), path.resolve(this.projectDir, babelName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/babel', babelName), path.resolve(this.projectDir, babelName));
         //修改 base dev 配置
         const babelPluginImport = core.parseSync("import babel from 'rollup-plugin-babel'").program.body[0];
         const babelPluginConfig = parser.parseExpression(`
@@ -283,12 +303,12 @@ class JestPlugin extends BasePlugin {
         path.resolve(this.projectDir, 'package.json');
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$1));
         // 拷贝配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestName), path.resolve(this.projectDir, this.jestName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/jest', this.jestName), path.resolve(this.projectDir, this.jestName));
         // 拷贝测试初始环境配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/jest', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
         // 拷贝一个基本的测试文件
         const path$1 = path.resolve(this.projectDir, 'test', this.testName);
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.testName), path$1);
+        fsExtra.copySync(path.resolve(__dirname, 'resource/jest', this.testName), path$1);
         const data = fsExtra.readFileSync(path$1, {
             encoding: 'utf8',
         }).replace(/javascript-template/g, lodash.last(this.projectDir.split(path.sep)));
@@ -337,7 +357,7 @@ class ESLintPlugin extends BasePlugin {
         // 修改 JSON 部分
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$2));
         // 拷贝配置文件
-        const genDir = path.resolve(__dirname, 'generator');
+        const genDir = path.resolve(__dirname, 'resource/eslint');
         fsExtra.copySync(path.resolve(genDir, this.eslintName), path.resolve(this.projectDir, this.eslintName));
         fsExtra.copySync(path.resolve(genDir, this.eslintIgnoreName), path.resolve(this.projectDir, this.eslintIgnoreName));
     }
@@ -387,7 +407,7 @@ class PrettierPlugin extends BasePlugin {
         //更新 package.json
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$3));
         //拷贝配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.prettierName), path.resolve(this.projectDir, this.prettierName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/prettier', this.prettierName), path.resolve(this.projectDir, this.prettierName));
     }
 }
 
@@ -415,7 +435,7 @@ class ESDocPlugin extends BasePlugin {
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$4));
         // 拷贝配置文件
         const configName = '.esdoc.json';
-        fsExtra.copySync(path.resolve(__dirname, 'generator', configName), path.resolve(this.projectDir, configName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/esdoc', configName), path.resolve(this.projectDir, configName));
     }
 }
 
@@ -426,16 +446,6 @@ var devDependencies$8 = {
 var pkgJSON$5 = {
 	devDependencies: devDependencies$8
 };
-
-/**
- * 模板的类型
- */
-var TemplateType;
-(function (TemplateType) {
-    TemplateType["JavaScript"] = "JavaScript \u6A21\u677F";
-    TemplateType["TypeScript"] = "TypeScript \u6A21\u677F";
-    TemplateType["Cli"] = "\u547D\u4EE4\u884C\u5DE5\u5177\u6A21\u677F";
-})(TemplateType || (TemplateType = {}));
 
 /**
  * 初始化 lint-staged
@@ -454,10 +464,10 @@ class StagedPlugin extends BasePlugin {
             throw new Error('初始化 staged 必须包含 ESLint 或 Prettier 插件！');
         }
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$5));
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.huskyName), path.resolve(this.projectDir, this.huskyName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/staged', this.huskyName), path.resolve(this.projectDir, this.huskyName));
         const projectLintStageName = path.resolve(this.projectDir, this.lintStagedName);
         if (this.type === TemplateType.JavaScript) {
-            fsExtra.copySync(path.resolve(__dirname, 'generator', this.lintStagedName), projectLintStageName);
+            fsExtra.copySync(path.resolve(__dirname, 'resource/staged', this.lintStagedName), projectLintStageName);
             if (!this.plugins.includes(JSPlugin.Prettier)) {
                 updateJSONFile(projectLintStageName, json => {
                     json.linters['src/**/*.js'].splice(1, 1);
@@ -470,7 +480,7 @@ class StagedPlugin extends BasePlugin {
             }
         }
         else if (this.type === TemplateType.TypeScript) {
-            fsExtra.copySync(path.resolve(__dirname, 'generator', this.lintStagedTSName), projectLintStageName);
+            fsExtra.copySync(path.resolve(__dirname, 'resource/staged', this.lintStagedTSName), projectLintStageName);
         }
     }
 }
@@ -538,12 +548,12 @@ class JestTSPlugin extends BasePlugin {
         // 修改 JSON 部分
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$6));
         // 拷贝配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestName), path.resolve(this.projectDir, this.jestName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/jest-ts', this.jestName), path.resolve(this.projectDir, this.jestName));
         // 拷贝测试初始环境配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/jest-ts', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
         // 拷贝一个基本的测试文件
         const path$1 = path.resolve(this.projectDir, 'test', this.testName);
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.testName), path$1);
+        fsExtra.copySync(path.resolve(__dirname, 'resource/jest-ts', this.testName), path$1);
         const data = fsExtra.readFileSync(path$1, {
             encoding: 'utf8',
         }).replace(/typescript-template/g, lodash.last(this.projectDir.split(path.sep)));
@@ -574,7 +584,7 @@ class TypeDocPlugin extends BasePlugin {
         //更新 package.json
         updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$7));
         //拷贝配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'generator', this.noJekyllName), path.resolve(this.projectDir, this.noJekyllName));
+        fsExtra.copySync(path.resolve(__dirname, 'resource/typedoc', this.noJekyllName), path.resolve(this.projectDir, this.noJekyllName));
     }
 }
 
@@ -710,14 +720,13 @@ function createJavaScriptFunc(projectDir) {
         }
         if (options.includes(JSPlugin.License)) {
             const license = yield promptLicense();
-            console.log(license);
             const plugin = new LicensePlugin();
             plugin.projectDir = projectDir;
             plugin.license = license;
             plugins.push(plugin);
         }
         // 初始化项目，例如修改项目名
-        initProject(projectDir, 'javascript');
+        initProject(projectDir, TemplateType.JavaScript);
         const pluginIdList = plugins.map(plugin => plugin.id);
         plugins
             .map(plugin => {
@@ -770,7 +779,7 @@ function createTypeScriptFunc(projectDir) {
             plugins.push(plugin);
         }
         // 初始化项目，例如修改项目名
-        initProject(projectDir, 'typescript');
+        initProject(projectDir, TemplateType.TypeScript);
         const pluginIdList = plugins.map(plugin => plugin.id);
         plugins
             .map(plugin => {
@@ -789,7 +798,7 @@ function createTypeScriptFunc(projectDir) {
 function createCliFunc(projectDir) {
     return __awaiter(this, void 0, void 0, function* () {
         // 初始化项目，例如修改项目名
-        initProject(projectDir, 'cli');
+        initProject(projectDir, TemplateType.Cli);
     });
 }
 program
@@ -817,7 +826,8 @@ program
             return;
         }
     }
-    switch (yield promptTemplateType()) {
+    const type = yield promptTemplateType();
+    switch (type) {
         case TemplateType.JavaScript:
             yield createJavaScriptFunc(projectDir);
             break;
