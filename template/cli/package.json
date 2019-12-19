@@ -12,7 +12,6 @@
     "clean": "rimraf bin/",
     "link:add": "yarn link && yarn link %npm_package_name%",
     "link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-    "postinstall": "yarn link:add && yarn link:remove && yarn link:add",
     "pkg": "pkg . --out-path=dist/ -t win,macos,linux,alpine",
     "test": "jest --all"
   },

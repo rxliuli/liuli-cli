@@ -4,14 +4,14 @@
   "description": "TypeScript SDK 的模板项目",
   "main": "dist/typescript-template.js",
   "module": "dist/typescript-template-es.js",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "dev": "rollup -w -c build/rollup.config.js",
     "build": "rollup -c build/rollup.config.js",
     "clean": "rimraf dist/",
     "link:add": "yarn link && yarn link %npm_package_name%",
-    "link:remove": "yarn unlink %npm_package_name% && yarn unlink",
-    "postinstall": "yarn link:add && yarn link:remove && yarn link:add"
+    "link:remove": "yarn unlink %npm_package_name% && yarn unlink"
   },
   "devDependencies": {
     "@types/rollup": "^0.54.0",
