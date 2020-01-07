@@ -43,7 +43,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 var name = "liuli-cli";
-var version = "0.1.1";
+var version = "0.1.2";
 var description = "一个 JavaScript/TypeScript SDK cli 工具";
 var main = "bin/li.js";
 var author = "rxliuli";
@@ -55,6 +55,7 @@ var scripts = {
 	li: "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
 	dev: "nodemon -w src/li.ts --exec \"yarn li\"",
 	build: "rollup -c rollup.config.js && yarn copy src/plugin/resource/ bin/resource/",
+	"build:tsc": "yarn tsc && yarn copy src/plugin/resource dist/src/plugin/resource",
 	"test:create": "yarn li test/node-example",
 	"link:add": "yarn link",
 	"link:remove": "yarn unlink"
@@ -562,7 +563,7 @@ class JestTSPlugin extends BasePlugin {
 }
 
 var scripts$6 = {
-	docs: "typedoc --out docs src --exclude src/**/*.test.ts && cp README.md docs/ && cp .nojekyll docs/"
+	docs: "typedoc --out docs src --exclude src/**/*.test.ts && yarn copy README.md docs/ && yarn copy .nojekyll docs/"
 };
 var devDependencies$a = {
 	typedoc: "^0.15.3"

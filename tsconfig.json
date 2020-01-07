@@ -23,5 +23,5 @@
     "moduleResolution": "node"
   },
   "include": ["./src/**/*.ts"],
-  "exclude": ["./dist", "./node_modules"]
+  "exclude": ["./dist", "./src/plugin/resource", "./node_modules"]
 }

@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/rollup": "^0.54.0",
+    "copy": "^0.3.2",
     "rimraf": "^3.0.0",
     "rollup": "^1.26.0",
     "rollup-plugin-terser": "^5.1.2"
