@@ -11,6 +11,7 @@ import { copySync } from 'fs-extra'
  */
 export class TypeDocPlugin extends BasePlugin {
   private noJekyllName = '.nojekyll'
+  private typeDocName = 'typedoc.json'
   constructor() {
     super(TSPlugin.TypeDoc)
   }
@@ -23,6 +24,10 @@ export class TypeDocPlugin extends BasePlugin {
     copySync(
       resolve(__dirname, 'resource/typedoc', this.noJekyllName),
       resolve(this.projectDir, this.noJekyllName),
+    )
+    copySync(
+      resolve(__dirname, 'resource/typedoc', this.typeDocName),
+      resolve(this.projectDir, this.typeDocName),
     )
   }
 }
