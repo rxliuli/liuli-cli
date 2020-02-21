@@ -8,6 +8,9 @@
   "bin": {
     "li": "bin/li.js"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "li": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
     "dev": "nodemon -w src/li.ts --exec \"yarn li\"",
