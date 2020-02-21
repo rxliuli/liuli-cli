@@ -1,6 +1,5 @@
 import shell from 'shelljs'
 import { formatPackageJSON } from './formatPackageJSON'
-import { TemplateType } from './TemplateType'
 
 /**
  * 执行一些准备工作
@@ -10,5 +9,6 @@ export function execReady(projectDir: string) {
   formatPackageJSON(projectDir)
   // 安装依赖
   shell.cd(projectDir)
-  shell.exec('yarn && yarn clean && yarn build')
+  //暂不执行安装依赖的操作
+  // shell.exec('yarn && yarn clean && yarn build')
 }

@@ -1,10 +1,10 @@
 import { resolve } from 'path'
 import { updateJSONFile } from '../util/updateJSONFile'
-import pkgJSON from './resource/prettier/package.json'
-import { copySync } from 'fs-extra'
-import { BasePlugin } from './base/BasePlugin'
-import { JSPlugin } from './base/constant'
+import { copySync, readJSONSync } from 'fs-extra'
 import merge from 'deepmerge'
+import { BasePlugin } from './BasePlugin'
+import { JSPlugin } from '../util/constant'
+import { resolvePlugin } from './resolvePlugin'
 
 export class PrettierPlugin extends BasePlugin {
   private prettierName = '.prettierrc.js'
@@ -15,12 +15,13 @@ export class PrettierPlugin extends BasePlugin {
 
   handle(): void {
     //更新 package.json
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
-      merge(json, pkgJSON),
-    )
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json => {
+      const pkgJSON = readJSONSync(resolvePlugin('./prettier/package.json'))
+      return merge(json, pkgJSON)
+    })
     //拷贝配置文件
     copySync(
-      resolve(__dirname, 'resource/prettier', this.prettierName),
+      resolvePlugin('./prettier', this.prettierName),
       resolve(this.projectDir, this.prettierName),
     )
   }

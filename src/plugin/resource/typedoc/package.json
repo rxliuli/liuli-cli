@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "docs": "typedoc --options typedoc.json --theme node_modules/typedoc-neo-theme/bin/default && cp CNAME docs/ && cp readme.md docs/ && cp .nojekyll docs/"
-  },
-  "devDependencies": {
-    "typedoc": "^0.16.0",
-    "typedoc-neo-theme": "^1.0.5"
-  }
-}

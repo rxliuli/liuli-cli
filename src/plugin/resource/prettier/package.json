@@ -1,9 +1,0 @@
-{
-  "scripts": {
-
-  },
-  "devDependencies": {
-    "prettier": "^1.18.2",
-    "prettier-config-standard": "^1.0.1"
-  }
-}

@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "docs": "typedoc --options typedoc.json && cp README.md docs/ && cp .nojekyll docs/"
+  },
+  "devDependencies": {
+    "typedoc": "^0.16.0"
+  }
+}

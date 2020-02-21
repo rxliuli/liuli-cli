@@ -1,4 +1,3 @@
-import pkgJSON from './resource/babel/package.json'
 import { resolve } from 'path'
 import { BabelFileResult, parseSync, transformFromAstSync } from '@babel/core'
 import {
@@ -15,25 +14,27 @@ import {
 } from '@babel/types'
 import { parseExpression } from '@babel/parser'
 import { findLastIndex } from 'lodash'
-import { BasePlugin } from './base/BasePlugin'
-import { JSPlugin } from './base/constant'
 import { updateJSONFile } from '../util/updateJSONFile'
-import { copySync, readFileSync, writeFileSync } from 'fs-extra'
+import { copySync, readFileSync, readJSONSync, writeFileSync } from 'fs-extra'
 import merge from 'deepmerge'
+import { BasePlugin } from './BasePlugin'
+import { JSPlugin } from '../util/constant'
+import { resolvePlugin } from './resolvePlugin'
 
 export class BabelPlugin extends BasePlugin {
   constructor() {
     super(JSPlugin.Babel)
   }
   handle(): void {
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
-      merge(json, pkgJSON),
-    )
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json => {
+      const pkgJSON = readJSONSync(resolvePlugin('./babel/package.json'))
+      return merge(json, pkgJSON)
+    })
 
     // 复制文件
     const babelName = '.babelrc'
     copySync(
-      resolve(__dirname, 'resource/babel', babelName),
+      resolvePlugin('./babel', babelName),
       resolve(this.projectDir, babelName),
     )
 

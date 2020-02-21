@@ -1,0 +1,24 @@
+{
+  "name": "typescript-template",
+  "version": "0.1.0",
+  "description": "TypeScript SDK 的模板项目",
+  "main": "dist/typescript-template.js",
+  "module": "dist/typescript-template-es.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "rollup -w -c build/rollup.config.js",
+    "build": "rollup -c build/rollup.config.js",
+    "clean": "rimraf dist/",
+    "link:add": "yarn link && yarn link %npm_package_name%",
+    "link:remove": "yarn unlink %npm_package_name% && yarn unlink"
+  },
+  "devDependencies": {
+    "@types/rollup": "^0.54.0",
+    "rollup": "^1.27.0",
+    "rollup-plugin-terser": "^5.1.2",
+    "rollup-plugin-typescript2": "^0.25.2",
+    "ts-node": "^8.5.0",
+    "tslib": "^1.10.0",
+    "typescript": "^3.7.2"
+  }
+}

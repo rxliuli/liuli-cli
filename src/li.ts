@@ -6,7 +6,6 @@ import { execReady } from './util/execReady'
 import { initProject } from './util/initProject'
 import { BabelPlugin } from './plugin/babel'
 import { pathExistsSync } from 'fs-extra'
-import { JSPlugin, TSPlugin } from './plugin/base/constant'
 import { JestPlugin } from './plugin/jest'
 import { ESLintPlugin } from './plugin/eslint'
 import { PrettierPlugin } from './plugin/prettier'
@@ -14,11 +13,12 @@ import { ESDocPlugin } from './plugin/esdoc'
 import { StagedPlugin } from './plugin/staged'
 import { LicensePlugin } from './plugin/license'
 import { licenseTypeList } from './plugin/licenseTypeList'
-import { BasePlugin } from './plugin/base/BasePlugin'
 import { LicenseType } from 'create-license'
 import { TemplateType } from './util/TemplateType'
 import { JestTSPlugin } from './plugin/jest-ts'
 import { TypeDocPlugin } from './plugin/typedoc'
+import { JSPlugin, TSPlugin } from './util/constant'
+import { BasePlugin } from './plugin/BasePlugin'
 
 /**
  * 1. 向用户询问一些选项
@@ -148,7 +148,6 @@ async function createJavaScriptFunc(projectDir: string) {
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
-
   if (options.includes(JSPlugin.License)) {
     const license = await promptLicense()
     const plugin = new LicensePlugin()
@@ -163,8 +162,8 @@ async function createJavaScriptFunc(projectDir: string) {
   const pluginIdList = plugins.map(plugin => plugin.id)
   plugins
     .map(plugin => {
-      plugin.plugins = pluginIdList
       plugin.type = TemplateType.JavaScript
+      plugin.plugins = pluginIdList
       plugin.handle()
       return plugin
     })

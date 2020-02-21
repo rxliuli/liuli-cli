@@ -22,16 +22,35 @@ npm i -g liuli-cli
 li create [project-name]
 ```
 
-然后就创建了一个开箱即用的 JavaScript SDK 项目了。
+然后选择创建的项目类型
 
-默认包含
+- `JavaScript 模板`
+- `TypeScript 模板`
+- `命令行工具模板`
 
-- [x] rollup: 打包
-- [x] babel: 编译
-- [x] jest: 测试
-- [x] esdoc: 文档生成
-- [ ] eslint: linter 代码约束
-- [ ] prettier: 格式化
+之后根据引导即可创建一个开箱即用的项目了。
+
+## 可选插件
+
+### TypeScript
+
+- `(*) Jest`：单元测试
+- `( ) Prettier`：格式化
+- `( ) TypeDoc`：API 文档生成
+- `( ) Staged`：强制执行 Linter
+- `( ) License`：选择许可证
+
+### JavaScript
+
+- `(*) Babel`：编译
+- `( ) ESLint`：代码约束
+- `( ) Prettier`：格式化
+- `( ) Jest`：单元测试
+- `( ) ESDoc`：API 文档生成
+- `( ) Staged`：强制执行 Linter
+- `( ) License`：选择许可证
+
+### CLI
 
 ## 打包
 

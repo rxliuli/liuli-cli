@@ -2,9 +2,9 @@ import createLicense, { LicenseType } from 'create-license'
 import { resolve, sep } from 'path'
 import { last } from 'lodash'
 import username from 'username'
-import { BasePlugin } from './base/BasePlugin'
-import { JSPlugin } from './base/constant'
 import { updateJSONFile } from '../util/updateJSONFile'
+import { BasePlugin } from './BasePlugin'
+import { JSPlugin } from '../util/constant'
 
 /**
  * license 插件

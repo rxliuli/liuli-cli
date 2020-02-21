@@ -8,6 +8,7 @@
       "*": ["types/*"]
     },
     // 不生成 .d.ts 及其对应的 .map 文件
+    "composite": false,
     "declaration": false,
     "declarationMap": false,
     "outDir": "./dist",

@@ -1,12 +1,10 @@
 import { resolve } from 'path'
-import { copySync } from 'fs-extra'
-import pkgJSON from './resource/eslint/package.json'
-import jestPkgJSON from './resource/eslint/jest.package.json'
-import prettierPkgJSON from './resource/eslint/prettier.package.json'
-import { JSPlugin } from './base/constant'
+import { copySync, readJSONSync } from 'fs-extra'
 import { updateJSONFile } from '../util/updateJSONFile'
-import { BasePlugin } from './base/BasePlugin'
 import merge from 'deepmerge'
+import { BasePlugin } from './BasePlugin'
+import { JSPlugin } from '../util/constant'
+import { resolvePlugin } from './resolvePlugin'
 
 export class ESLintPlugin extends BasePlugin {
   private eslintName = '.eslintrc'
@@ -16,11 +14,12 @@ export class ESLintPlugin extends BasePlugin {
   }
   handle(): void {
     // 修改 JSON 部分
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
-      merge(json, pkgJSON),
-    )
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json => {
+      const pkgJSON = readJSONSync(resolvePlugin('./eslint/package.json'))
+      return merge(json, pkgJSON)
+    })
     // 拷贝配置文件
-    const genDir = resolve(__dirname, 'resource/eslint')
+    const genDir = resolvePlugin('./eslint')
     copySync(
       resolve(genDir, this.eslintName),
       resolve(this.projectDir, this.eslintName),
@@ -41,9 +40,12 @@ export class ESLintPlugin extends BasePlugin {
   }
   // 处理与 jest 的集成
   private integratedJest() {
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
-      merge(json, jestPkgJSON),
-    )
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json => {
+      const jestPkgJSON = readJSONSync(
+        resolvePlugin('./eslint/jest.package.json'),
+      )
+      return merge(json, jestPkgJSON)
+    })
 
     updateJSONFile(resolve(this.projectDir, this.eslintName), json => {
       json.env = {
@@ -55,9 +57,12 @@ export class ESLintPlugin extends BasePlugin {
   // 处理与 prettier 的集成
   private integratedPrettier() {
     // 更新依赖
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
-      merge(json, prettierPkgJSON),
-    )
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json => {
+      const prettierPkgJSON = readJSONSync(
+        resolvePlugin('./eslint/prettier.package.json'),
+      )
+      return merge(json, prettierPkgJSON)
+    })
     updateJSONFile(resolve(this.projectDir, this.eslintName), json => {
       json.extends = [...json.extends, 'plugin:prettier/recommended']
     })

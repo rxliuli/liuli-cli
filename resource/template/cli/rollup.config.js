@@ -1,35 +1,29 @@
 import typescript from 'rollup-plugin-typescript2'
 import json from 'rollup-plugin-json'
 import { resolve } from 'path'
+import { name } from './package.json'
 
 export default {
   // 入口文件
-  input: resolve(__dirname, 'src/li.ts'),
+  input: resolve(__dirname, 'src/index.ts'),
   output: {
     // 打包名称
-    name: 'li',
+    name,
     // 文件顶部信息
     banner: '#!/usr/bin/env node',
-    file: resolve(__dirname, 'bin/li.js'),
+    file: resolve(__dirname, `bin/index.js`),
     format: 'cjs',
   },
   //声明项目的运行时依赖避免 rollup 发出警告
   external: [
-    '@babel/core',
-    '@babel/parser',
-    '@babel/traverse',
     'commander',
-    'create-license',
     'deepmerge',
     'fs-extra',
     'inquirer',
     'lodash',
     'shelljs',
-    'sort-package-json',
-    'username',
-    'path',
-    '@babel/types',
     'fs',
+    'path',
   ],
   plugins: [
     typescript(),

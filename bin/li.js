@@ -43,7 +43,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 var name = "liuli-cli";
-var version = "0.1.1";
+var version = "0.1.2";
 var description = "一个 JavaScript/TypeScript SDK cli 工具";
 var main = "bin/li.js";
 var author = "rxliuli";
@@ -54,14 +54,13 @@ var bin = {
 var scripts = {
 	li: "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
 	dev: "nodemon -w src/li.ts --exec \"yarn li\"",
-	build: "rollup -c rollup.config.js && yarn copy src/plugin/resource/ bin/resource/",
+	build: "rollup -c rollup.config.js",
 	"test:create": "yarn li test/node-example",
 	"link:add": "yarn link",
 	"link:remove": "yarn unlink"
 };
 var devDependencies = {
 	"@babel/types": "^7.6.3",
-	"@types/app-root-path": "^1.2.4",
 	"@types/deepmerge": "^2.2.0",
 	"@types/fs-extra": "^8.0.1",
 	"@types/inquirer": "^6.5.0",
@@ -71,7 +70,6 @@ var devDependencies = {
 	"@types/rollup": "^0.54.0",
 	"@types/shelljs": "^0.8.5",
 	"@types/username": "^3.0.0",
-	"app-root-path": "^3.0.0",
 	"copy-dir-cli": "^0.0.3",
 	jest: "^24.9.0",
 	"jest-extended": "^0.11.2",
@@ -132,7 +130,8 @@ function execReady(projectDir) {
     formatPackageJSON(projectDir);
     // 安装依赖
     shell.cd(projectDir);
-    shell.exec('yarn && yarn clean && yarn build');
+    //暂不执行安装依赖的操作
+    // shell.exec('yarn && yarn clean && yarn build')
 }
 
 /**
@@ -159,59 +158,7 @@ var TemplateType;
     TemplateType["Cli"] = "\u547D\u4EE4\u884C\u5DE5\u5177\u6A21\u677F";
 })(TemplateType || (TemplateType = {}));
 
-/**
- * 一些初始化操作，修改项目名
- * @param projectDir
- * @param type
- */
-function initProject(projectDir, type) {
-    fsExtra.removeSync(projectDir);
-    const templateDir = type === TemplateType.JavaScript
-        ? 'javascript'
-        : type === TemplateType.TypeScript
-            ? 'typescript'
-            : 'cli';
-    fsExtra.copySync(path.resolve(__dirname, `../template/${templateDir}`), projectDir);
-    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
-        const oldName = json.name;
-        const projectPathList = projectDir.split(path.sep);
-        json.name = projectPathList[projectPathList.length - 1];
-        if ((type = TemplateType.JavaScript || type === TemplateType.TypeScript)) {
-            json.main = json.main.replace(oldName, json.name);
-            json.module = json.module.replace(oldName, json.name);
-        }
-    });
-}
-
-var devDependencies$1 = {
-	"@babel/core": "^7.2.2",
-	"@babel/preset-env": "^7.3.1",
-	"rollup-plugin-babel": "^4.3.2"
-};
-var pkgJSON = {
-	devDependencies: devDependencies$1
-};
-
-/**
- * 基础的插件接口，所有的接口
- */
-class BasePlugin {
-    constructor(id) {
-        /**
-         * 项目的根目录
-         */
-        this.projectDir = '';
-        /**
-         * 项目依赖的插件 ID 列表
-         */
-        this.plugins = [];
-        this.id = id;
-    }
-    /**
-     * 可选择的集成其他插件时的操作
-     */
-    integrated() { }
-}
+const RootPath = path.resolve(__dirname, '../');
 
 /**
  * JS 插件
@@ -237,16 +184,67 @@ var TSPlugin;
     TSPlugin[TSPlugin["Staged"] = 3] = "Staged";
     TSPlugin[TSPlugin["License"] = 4] = "License";
 })(TSPlugin || (TSPlugin = {}));
+const ResourcePath = path.resolve(RootPath, './resource');
+
+/**
+ * 一些初始化操作，修改项目名
+ * @param projectDir
+ * @param type
+ */
+function initProject(projectDir, type) {
+    fsExtra.removeSync(projectDir);
+    const templateDirMap = {
+        [TemplateType.JavaScript]: 'javascript',
+        [TemplateType.TypeScript]: 'typescript',
+        [TemplateType.Cli]: 'cli',
+    };
+    const templateDir = templateDirMap[type];
+    fsExtra.copySync(path.resolve(ResourcePath, `./template/${templateDir}`), projectDir);
+    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
+        const oldName = json.name;
+        const projectPathList = projectDir.split(path.sep);
+        json.name = projectPathList[projectPathList.length - 1];
+        if (type === TemplateType.JavaScript || type === TemplateType.TypeScript) {
+            json.main = json.main.replace(oldName, json.name);
+            json.module = json.module.replace(oldName, json.name);
+        }
+    });
+}
+
+class BasePlugin {
+    constructor(id) {
+        /**
+         * 项目的根目录
+         */
+        this.projectDir = '';
+        /**
+         * 项目依赖的插件 ID 列表
+         */
+        this.plugins = [];
+        this.id = id;
+    }
+    /**
+     * 可选择的集成其他插件时的操作
+     */
+    integrated() { }
+}
+
+function resolvePlugin(...paths) {
+    return path.resolve(RootPath, './resource/plugin/', ...paths);
+}
 
 class BabelPlugin extends BasePlugin {
     constructor() {
         super(JSPlugin.Babel);
     }
     handle() {
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const pkgJSON = fsExtra.readJSONSync(resolvePlugin('./babel/package.json'));
+            return merge(json, pkgJSON);
+        });
         // 复制文件
         const babelName = '.babelrc';
-        fsExtra.copySync(path.resolve(__dirname, 'resource/babel', babelName), path.resolve(this.projectDir, babelName));
+        fsExtra.copySync(resolvePlugin('./babel', babelName), path.resolve(this.projectDir, babelName));
         //修改 base dev 配置
         const babelPluginImport = core.parseSync("import babel from 'rollup-plugin-babel'").program.body[0];
         const babelPluginConfig = parser.parseExpression(`
@@ -278,19 +276,6 @@ class BabelPlugin extends BasePlugin {
     }
 }
 
-var scripts$1 = {
-	test: "jest --all"
-};
-var devDependencies$2 = {
-	"@types/jest": "^24.0.12",
-	jest: "^24.5.0",
-	"jest-extended": "^0.11.1"
-};
-var pkgJSON$1 = {
-	scripts: scripts$1,
-	devDependencies: devDependencies$2
-};
-
 class JestPlugin extends BasePlugin {
     constructor() {
         super(JSPlugin.Jest);
@@ -301,51 +286,23 @@ class JestPlugin extends BasePlugin {
     handle() {
         // 修改 JSON 部分
         path.resolve(this.projectDir, 'package.json');
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$1));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const pkgJSON = fsExtra.readJSONSync(resolvePlugin('./jest/package.json'));
+            return merge(json, pkgJSON);
+        });
         // 拷贝配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'resource/jest', this.jestName), path.resolve(this.projectDir, this.jestName));
+        fsExtra.copySync(resolvePlugin('./jest', this.jestName), path.resolve(this.projectDir, this.jestName));
         // 拷贝测试初始环境配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'resource/jest', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
+        fsExtra.copySync(resolvePlugin('./jest', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
         // 拷贝一个基本的测试文件
         const path$1 = path.resolve(this.projectDir, 'test', this.testName);
-        fsExtra.copySync(path.resolve(__dirname, 'resource/jest', this.testName), path$1);
+        fsExtra.copySync(resolvePlugin('./jest', this.testName), path$1);
         const data = fsExtra.readFileSync(path$1, {
             encoding: 'utf8',
         }).replace(/javascript-template/g, lodash.last(this.projectDir.split(path.sep)));
         fs.writeFileSync(path$1, data);
     }
 }
-
-var scripts$2 = {
-	test: "jest --all"
-};
-var devDependencies$3 = {
-	eslint: "^5.15.3",
-	"eslint-config-standard": "^12.0.0",
-	"eslint-plugin-import": "^2.14.0",
-	"eslint-plugin-node": "^8.0.1",
-	"eslint-plugin-promise": "^4.0.1",
-	"eslint-plugin-standard": "^4.0.0"
-};
-var pkgJSON$2 = {
-	scripts: scripts$2,
-	devDependencies: devDependencies$3
-};
-
-var devDependencies$4 = {
-	"eslint-plugin-jest": "^22.4.1"
-};
-var jestPkgJSON = {
-	devDependencies: devDependencies$4
-};
-
-var devDependencies$5 = {
-	"eslint-config-prettier": "^6.5.0",
-	"eslint-plugin-prettier": "^3.1.1"
-};
-var prettierPkgJSON = {
-	devDependencies: devDependencies$5
-};
 
 class ESLintPlugin extends BasePlugin {
     constructor() {
@@ -355,9 +312,12 @@ class ESLintPlugin extends BasePlugin {
     }
     handle() {
         // 修改 JSON 部分
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$2));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const pkgJSON = fsExtra.readJSONSync(resolvePlugin('./eslint/package.json'));
+            return merge(json, pkgJSON);
+        });
         // 拷贝配置文件
-        const genDir = path.resolve(__dirname, 'resource/eslint');
+        const genDir = resolvePlugin('./eslint');
         fsExtra.copySync(path.resolve(genDir, this.eslintName), path.resolve(this.projectDir, this.eslintName));
         fsExtra.copySync(path.resolve(genDir, this.eslintIgnoreName), path.resolve(this.projectDir, this.eslintIgnoreName));
     }
@@ -372,7 +332,10 @@ class ESLintPlugin extends BasePlugin {
     }
     // 处理与 jest 的集成
     integratedJest() {
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, jestPkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const jestPkgJSON = fsExtra.readJSONSync(resolvePlugin('./eslint/jest.package.json'));
+            return merge(json, jestPkgJSON);
+        });
         updateJSONFile(path.resolve(this.projectDir, this.eslintName), json => {
             json.env = Object.assign(Object.assign({}, json.env), { 'jest/globals': true });
         });
@@ -380,23 +343,15 @@ class ESLintPlugin extends BasePlugin {
     // 处理与 prettier 的集成
     integratedPrettier() {
         // 更新依赖
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, prettierPkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const prettierPkgJSON = fsExtra.readJSONSync(resolvePlugin('./eslint/prettier.package.json'));
+            return merge(json, prettierPkgJSON);
+        });
         updateJSONFile(path.resolve(this.projectDir, this.eslintName), json => {
             json.extends = [...json.extends, 'plugin:prettier/recommended'];
         });
     }
 }
-
-var scripts$3 = {
-};
-var devDependencies$6 = {
-	prettier: "^1.18.2",
-	"prettier-config-standard": "^1.0.1"
-};
-var pkgJSON$3 = {
-	scripts: scripts$3,
-	devDependencies: devDependencies$6
-};
 
 class PrettierPlugin extends BasePlugin {
     constructor() {
@@ -405,23 +360,14 @@ class PrettierPlugin extends BasePlugin {
     }
     handle() {
         //更新 package.json
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$3));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const pkgJSON = fsExtra.readJSONSync(resolvePlugin('./prettier/package.json'));
+            return merge(json, pkgJSON);
+        });
         //拷贝配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'resource/prettier', this.prettierName), path.resolve(this.projectDir, this.prettierName));
+        fsExtra.copySync(resolvePlugin('./prettier', this.prettierName), path.resolve(this.projectDir, this.prettierName));
     }
 }
-
-var scripts$4 = {
-	docs: "esdoc"
-};
-var devDependencies$7 = {
-	esdoc: "^1.1.0",
-	"esdoc-standard-plugin": "^1.0.0"
-};
-var pkgJSON$4 = {
-	scripts: scripts$4,
-	devDependencies: devDependencies$7
-};
 
 /**
  * ESDoc 插件
@@ -432,20 +378,15 @@ class ESDocPlugin extends BasePlugin {
     }
     handle() {
         // 拷贝配置文件
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$4));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const pkgJSON = fsExtra.readJSONSync(resolvePlugin('./esdoc/package.json'));
+            return merge(json, pkgJSON);
+        });
         // 拷贝配置文件
         const configName = '.esdoc.json';
-        fsExtra.copySync(path.resolve(__dirname, 'resource/esdoc', configName), path.resolve(this.projectDir, configName));
+        fsExtra.copySync(resolvePlugin('./esdoc', configName), path.resolve(this.projectDir, configName));
     }
 }
-
-var devDependencies$8 = {
-	husky: "^3.0.5",
-	"lint-staged": "^9.3.0"
-};
-var pkgJSON$5 = {
-	devDependencies: devDependencies$8
-};
 
 /**
  * 初始化 lint-staged
@@ -463,11 +404,14 @@ class StagedPlugin extends BasePlugin {
             !this.plugins.includes(TSPlugin.Prettier)) {
             throw new Error('初始化 staged 必须包含 ESLint 或 Prettier 插件！');
         }
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$5));
-        fsExtra.copySync(path.resolve(__dirname, 'resource/staged', this.huskyName), path.resolve(this.projectDir, this.huskyName));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const pkgJSON = fsExtra.readJSONSync(resolvePlugin('./staged/package.json'));
+            return merge(json, pkgJSON);
+        });
+        fsExtra.copySync(resolvePlugin('./staged', this.huskyName), path.resolve(this.projectDir, this.huskyName));
         const projectLintStageName = path.resolve(this.projectDir, this.lintStagedName);
         if (this.type === TemplateType.JavaScript) {
-            fsExtra.copySync(path.resolve(__dirname, 'resource/staged', this.lintStagedName), projectLintStageName);
+            fsExtra.copySync(resolvePlugin('./staged', this.lintStagedName), projectLintStageName);
             if (!this.plugins.includes(JSPlugin.Prettier)) {
                 updateJSONFile(projectLintStageName, json => {
                     json.linters['src/**/*.js'].splice(1, 1);
@@ -480,7 +424,7 @@ class StagedPlugin extends BasePlugin {
             }
         }
         else if (this.type === TemplateType.TypeScript) {
-            fsExtra.copySync(path.resolve(__dirname, 'resource/staged', this.lintStagedTSName), projectLintStageName);
+            fsExtra.copySync(resolvePlugin('./staged', this.lintStagedTSName), projectLintStageName);
         }
     }
 }
@@ -523,20 +467,6 @@ const licenseTypeList = [
     'wtfpl',
 ];
 
-var scripts$5 = {
-	test: "jest --all"
-};
-var devDependencies$9 = {
-	"@types/jest": "^24.0.12",
-	jest: "^24.5.0",
-	"jest-extended": "^0.11.1",
-	"ts-jest": "^24.0.2"
-};
-var pkgJSON$6 = {
-	scripts: scripts$5,
-	devDependencies: devDependencies$9
-};
-
 class JestTSPlugin extends BasePlugin {
     constructor() {
         super(JSPlugin.Jest);
@@ -546,31 +476,23 @@ class JestTSPlugin extends BasePlugin {
     }
     handle() {
         // 修改 JSON 部分
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$6));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const pkgJSON = fsExtra.readJSONSync(resolvePlugin('./jest-ts/package.json'));
+            return merge(json, pkgJSON);
+        });
         // 拷贝配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'resource/jest-ts', this.jestName), path.resolve(this.projectDir, this.jestName));
+        fsExtra.copySync(resolvePlugin('./jest-ts', this.jestName), path.resolve(this.projectDir, this.jestName));
         // 拷贝测试初始环境配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'resource/jest-ts', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
+        fsExtra.copySync(resolvePlugin('./jest-ts', this.jestStartName), path.resolve(this.projectDir, 'test', this.jestStartName));
         // 拷贝一个基本的测试文件
         const path$1 = path.resolve(this.projectDir, 'test', this.testName);
-        fsExtra.copySync(path.resolve(__dirname, 'resource/jest-ts', this.testName), path$1);
+        fsExtra.copySync(resolvePlugin('./jest-ts', this.testName), path$1);
         const data = fsExtra.readFileSync(path$1, {
             encoding: 'utf8',
         }).replace(/typescript-template/g, lodash.last(this.projectDir.split(path.sep)));
         fs.writeFileSync(path$1, data);
     }
 }
-
-var scripts$6 = {
-	docs: "typedoc --out docs src --exclude src/**/*.test.ts && cp README.md docs/ && cp .nojekyll docs/"
-};
-var devDependencies$a = {
-	typedoc: "^0.15.3"
-};
-var pkgJSON$7 = {
-	scripts: scripts$6,
-	devDependencies: devDependencies$a
-};
 
 /**
  * typedoc 插件
@@ -579,12 +501,17 @@ class TypeDocPlugin extends BasePlugin {
     constructor() {
         super(TSPlugin.TypeDoc);
         this.noJekyllName = '.nojekyll';
+        this.typeDocName = 'typedoc.json';
     }
     handle() {
         //更新 package.json
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$7));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+            const pkgJSON = fsExtra.readJSONSync(resolvePlugin('./typedoc/package.json'));
+            return merge(json, pkgJSON);
+        });
         //拷贝配置文件
-        fsExtra.copySync(path.resolve(__dirname, 'resource/typedoc', this.noJekyllName), path.resolve(this.projectDir, this.noJekyllName));
+        fsExtra.copySync(resolvePlugin('./typedoc', this.noJekyllName), path.resolve(this.projectDir, this.noJekyllName));
+        fsExtra.copySync(resolvePlugin('./typedoc', this.typeDocName), path.resolve(this.projectDir, this.typeDocName));
     }
 }
 
@@ -730,8 +657,8 @@ function createJavaScriptFunc(projectDir) {
         const pluginIdList = plugins.map(plugin => plugin.id);
         plugins
             .map(plugin => {
-            plugin.plugins = pluginIdList;
             plugin.type = TemplateType.JavaScript;
+            plugin.plugins = pluginIdList;
             plugin.handle();
             return plugin;
         })

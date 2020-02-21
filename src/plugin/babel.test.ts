@@ -6,7 +6,7 @@ describe('测试 babel 插件', () => {
   beforeEach(() => {
     path = initTestEnv()
   })
-  it('一般情况', () => {
+  it('基本示例', () => {
     const babelPlugin = new BabelPlugin()
     babelPlugin.projectDir = path
     babelPlugin.handle()

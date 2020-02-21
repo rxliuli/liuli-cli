@@ -1,0 +1,20 @@
+{
+  "name": "javascript-template",
+  "version": "0.1.0",
+  "main": "dist/javascript-template.js",
+  "license": "MIT",
+  "module": "dist/javascript-template-es.js",
+  "scripts": {
+    "dev": "rollup -w -c build/rollup.config.js",
+    "build": "rollup -c build/rollup.config.js",
+    "clean": "rimraf dist/",
+    "link:add": "yarn link && yarn link %npm_package_name%",
+    "link:remove": "yarn unlink %npm_package_name% && yarn unlink"
+  },
+  "devDependencies": {
+    "@types/rollup": "^0.54.0",
+    "rimraf": "^3.0.0",
+    "rollup": "^1.26.0",
+    "rollup-plugin-terser": "^5.1.2"
+  }
+}

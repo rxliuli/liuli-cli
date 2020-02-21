@@ -1,11 +1,11 @@
-import { copySync } from 'fs-extra'
+import { copySync, readJSONSync } from 'fs-extra'
 import { resolve } from 'path'
 import { updateJSONFile } from '../util/updateJSONFile'
-import pkgJSON from './resource/staged/package.json'
-import { BasePlugin } from './base/BasePlugin'
-import { JSPlugin, TSPlugin } from './base/constant'
 import merge from 'deepmerge'
 import { TemplateType } from '../util/TemplateType'
+import { BasePlugin } from './BasePlugin'
+import { JSPlugin, TSPlugin } from '../util/constant'
+import { resolvePlugin } from './resolvePlugin'
 
 /**
  * 初始化 lint-staged
@@ -27,17 +27,18 @@ export class StagedPlugin extends BasePlugin {
     ) {
       throw new Error('初始化 staged 必须包含 ESLint 或 Prettier 插件！')
     }
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
-      merge(json, pkgJSON),
-    )
+    updateJSONFile(resolve(this.projectDir, 'package.json'), json => {
+      const pkgJSON = readJSONSync(resolvePlugin('./staged/package.json'))
+      return merge(json, pkgJSON)
+    })
     copySync(
-      resolve(__dirname, 'resource/staged', this.huskyName),
+      resolvePlugin('./staged', this.huskyName),
       resolve(this.projectDir, this.huskyName),
     )
     const projectLintStageName = resolve(this.projectDir, this.lintStagedName)
     if (this.type === TemplateType.JavaScript) {
       copySync(
-        resolve(__dirname, 'resource/staged', this.lintStagedName),
+        resolvePlugin('./staged', this.lintStagedName),
         projectLintStageName,
       )
       if (!this.plugins.includes(JSPlugin.Prettier)) {
@@ -51,7 +52,7 @@ export class StagedPlugin extends BasePlugin {
       }
     } else if (this.type === TemplateType.TypeScript) {
       copySync(
-        resolve(__dirname, 'resource/staged', this.lintStagedTSName),
+        resolvePlugin('./staged', this.lintStagedTSName),
         projectLintStageName,
       )
     }
