@@ -11,6 +11,21 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rxliuli/liuli-cli.git"
+  },
+  "keywords": [
+    "sdk",
+    "cli",
+    "typescript",
+    "javascript"
+  ],
+  "bugs": {
+    "url": "https://github.com/rxliuli/liuli-cli/issues",
+    "email": "rxliuli@gmail.com"
+  },
+  "homepage": "https://github.com/rxliuli/liuli-cli",
   "scripts": {
     "li": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
     "dev": "nodemon -w src/li.ts --exec \"yarn li\"",
