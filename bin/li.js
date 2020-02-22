@@ -43,7 +43,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 var name = "liuli-cli";
-var version = "0.1.2";
+var version = "0.1.4";
 var description = "一个 JavaScript/TypeScript SDK cli 工具";
 var main = "bin/li.js";
 var author = "rxliuli";
@@ -51,13 +51,32 @@ var license = "mit";
 var bin = {
 	li: "bin/li.js"
 };
+var publishConfig = {
+	registry: "https://registry.npmjs.org/"
+};
+var repository = {
+	type: "git",
+	url: "https://github.com/rxliuli/liuli-cli.git"
+};
+var keywords = [
+	"sdk",
+	"cli",
+	"typescript",
+	"javascript"
+];
+var bugs = {
+	url: "https://github.com/rxliuli/liuli-cli/issues",
+	email: "rxliuli@gmail.com"
+};
+var homepage = "https://github.com/rxliuli/liuli-cli";
 var scripts = {
 	li: "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
 	dev: "nodemon -w src/li.ts --exec \"yarn li\"",
 	build: "rollup -c rollup.config.js",
 	"test:create": "yarn li test/node-example",
 	"link:add": "yarn link",
-	"link:remove": "yarn unlink"
+	"link:remove": "yarn unlink",
+	prepublishOnly: "yarn build"
 };
 var devDependencies = {
 	"@babel/types": "^7.6.3",
@@ -106,6 +125,11 @@ var appInfo = {
 	author: author,
 	license: license,
 	bin: bin,
+	publishConfig: publishConfig,
+	repository: repository,
+	keywords: keywords,
+	bugs: bugs,
+	homepage: homepage,
 	scripts: scripts,
 	devDependencies: devDependencies,
 	dependencies: dependencies
