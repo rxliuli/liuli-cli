@@ -19,6 +19,7 @@ import { LicenseType } from 'create-license'
 import { TemplateType } from './util/TemplateType'
 import { JestTSPlugin } from './plugin/jest-ts'
 import { TypeDocPlugin } from './plugin/typedoc'
+import { ESLintTSPlugin } from './plugin/eslint-ts'
 
 /**
  * 1. 向用户询问一些选项
@@ -39,7 +40,7 @@ async function promptInput(plugin: typeof JSPlugin | typeof TSPlugin) {
       message: '请选择需要的组件',
       suffix: '请按下空格',
       choices: [...Object.keys(plugin)]
-        .filter(k => isNaN(k as any))
+        .filter((k) => isNaN(k as any))
         .map((k, i) => ({
           name: k,
           value: plugin[k as any],
@@ -160,15 +161,15 @@ async function createJavaScriptFunc(projectDir: string) {
   // 初始化项目，例如修改项目名
   initProject(projectDir, TemplateType.JavaScript)
 
-  const pluginIdList = plugins.map(plugin => plugin.id)
+  const pluginIdList = plugins.map((plugin) => plugin.id)
   plugins
-    .map(plugin => {
+    .map((plugin) => {
       plugin.plugins = pluginIdList
       plugin.type = TemplateType.JavaScript
       plugin.handle()
       return plugin
     })
-    .forEach(plugin => plugin.integrated())
+    .forEach((plugin) => plugin.integrated())
 }
 
 /**
@@ -186,6 +187,11 @@ async function createTypeScriptFunc(projectDir: string) {
   const plugins: BasePlugin[] = []
   if (options.includes(TSPlugin.Jest)) {
     const plugin = new JestTSPlugin()
+    plugin.projectDir = projectDir
+    plugins.push(plugin)
+  }
+  if (options.includes(TSPlugin.ESLint)) {
+    const plugin = new ESLintTSPlugin()
     plugin.projectDir = projectDir
     plugins.push(plugin)
   }
@@ -215,15 +221,15 @@ async function createTypeScriptFunc(projectDir: string) {
   // 初始化项目，例如修改项目名
   initProject(projectDir, TemplateType.TypeScript)
 
-  const pluginIdList = plugins.map(plugin => plugin.id)
+  const pluginIdList = plugins.map((plugin) => plugin.id)
   plugins
-    .map(plugin => {
+    .map((plugin) => {
       plugin.plugins = pluginIdList
       plugin.type = TemplateType.TypeScript
       plugin.handle()
       return plugin
     })
-    .forEach(plugin => plugin.integrated())
+    .forEach((plugin) => plugin.integrated())
 }
 
 /**
@@ -246,7 +252,7 @@ program
   //子命令 create
   .command('create <project-name>')
   .description('创建一个 JavaScript/TypeScript SDK 项目')
-  .action(async projectPath => {
+  .action(async (projectPath) => {
     // 获取当前路径
     const projectDir = resolve(process.cwd(), projectPath)
     // 检查文件夹是否已存在

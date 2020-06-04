@@ -2,7 +2,7 @@ import { resolve } from 'path'
 import { copySync } from 'fs-extra'
 import pkgJSON from './resource/eslint-ts/package.json'
 import prettierPkgJSON from './resource/eslint/prettier.package.json'
-import { JSPlugin, TSPlugin } from './base/constant'
+import { TSPlugin } from './base/constant'
 import { updateJSONFile } from '../util/updateJSONFile'
 import { BasePlugin } from './base/BasePlugin'
 import merge from 'deepmerge'
@@ -11,7 +11,7 @@ export class ESLintTSPlugin extends BasePlugin {
   private eslintName = '.eslintrc'
   private eslintIgnoreName = '.eslintignore'
   constructor() {
-    super(JSPlugin.ESLint)
+    super(TSPlugin.ESLint)
   }
   handle(): void {
     // 修改 JSON 部分

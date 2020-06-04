@@ -43,7 +43,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 var name = "liuli-cli";
-var version = "0.2.2";
+var version = "0.2.4";
 var description = "一个 JavaScript/TypeScript SDK cli 工具";
 var main = "bin/li.js";
 var author = "rxliuli";
@@ -598,6 +598,49 @@ class TypeDocPlugin extends BasePlugin {
     }
 }
 
+var scripts$7 = {
+	lint: "eslint src --ext .ts"
+};
+var devDependencies$b = {
+	"@typescript-eslint/eslint-plugin": "^3.1.0",
+	"@typescript-eslint/parser": "^3.1.0",
+	eslint: "^7.1.0"
+};
+var pkgJSON$8 = {
+	scripts: scripts$7,
+	devDependencies: devDependencies$b
+};
+
+class ESLintTSPlugin extends BasePlugin {
+    constructor() {
+        super(TSPlugin.ESLint);
+        this.eslintName = '.eslintrc';
+        this.eslintIgnoreName = '.eslintignore';
+    }
+    handle() {
+        // 修改 JSON 部分
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, pkgJSON$8));
+        // 拷贝配置文件
+        const genDir = path.resolve(__dirname, 'resource/eslint-ts');
+        fsExtra.copySync(path.resolve(genDir, this.eslintName), path.resolve(this.projectDir, this.eslintName));
+        fsExtra.copySync(path.resolve(genDir, this.eslintIgnoreName), path.resolve(this.projectDir, this.eslintIgnoreName));
+    }
+    // 同时集成其他开源组件
+    integrated() {
+        if (this.plugins.includes(TSPlugin.Prettier)) {
+            this.integratedPrettier();
+        }
+    }
+    // 处理与 prettier 的集成
+    integratedPrettier() {
+        // 更新依赖
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, prettierPkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, this.eslintName), (json) => {
+            json.extends = [...json.extends, 'plugin:prettier/recommended'];
+        });
+    }
+}
+
 /**
  * 1. 向用户询问一些选项
  * 2. 下载模板项目
@@ -617,7 +660,7 @@ function promptInput(plugin) {
                 message: '请选择需要的组件',
                 suffix: '请按下空格',
                 choices: [...Object.keys(plugin)]
-                    .filter(k => isNaN(k))
+                    .filter((k) => isNaN(k))
                     .map((k, i) => ({
                     name: k,
                     value: plugin[k],
@@ -737,15 +780,15 @@ function createJavaScriptFunc(projectDir) {
         }
         // 初始化项目，例如修改项目名
         initProject(projectDir, TemplateType.JavaScript);
-        const pluginIdList = plugins.map(plugin => plugin.id);
+        const pluginIdList = plugins.map((plugin) => plugin.id);
         plugins
-            .map(plugin => {
+            .map((plugin) => {
             plugin.plugins = pluginIdList;
             plugin.type = TemplateType.JavaScript;
             plugin.handle();
             return plugin;
         })
-            .forEach(plugin => plugin.integrated());
+            .forEach((plugin) => plugin.integrated());
     });
 }
 /**
@@ -763,6 +806,11 @@ function createTypeScriptFunc(projectDir) {
         const plugins = [];
         if (options.includes(TSPlugin.Jest)) {
             const plugin = new JestTSPlugin();
+            plugin.projectDir = projectDir;
+            plugins.push(plugin);
+        }
+        if (options.includes(TSPlugin.ESLint)) {
+            const plugin = new ESLintTSPlugin();
             plugin.projectDir = projectDir;
             plugins.push(plugin);
         }
@@ -790,15 +838,15 @@ function createTypeScriptFunc(projectDir) {
         }
         // 初始化项目，例如修改项目名
         initProject(projectDir, TemplateType.TypeScript);
-        const pluginIdList = plugins.map(plugin => plugin.id);
+        const pluginIdList = plugins.map((plugin) => plugin.id);
         plugins
-            .map(plugin => {
+            .map((plugin) => {
             plugin.plugins = pluginIdList;
             plugin.type = TemplateType.TypeScript;
             plugin.handle();
             return plugin;
         })
-            .forEach(plugin => plugin.integrated());
+            .forEach((plugin) => plugin.integrated());
     });
 }
 /**
