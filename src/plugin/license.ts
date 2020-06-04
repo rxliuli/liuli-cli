@@ -15,7 +15,7 @@ export class LicensePlugin extends BasePlugin {
     super(JSPlugin.License)
   }
   handle(): void {
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json => {
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) => {
       json.license = this.license
     })
     createLicense(this.projectDir, this.license, {

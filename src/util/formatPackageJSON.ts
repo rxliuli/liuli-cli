@@ -11,8 +11,5 @@ import { readJSONSync } from 'fs-extra'
 export function formatPackageJSON(projectDir: string) {
   const pkgPath = resolve(projectDir, 'package.json')
   const data = readJSONSync(pkgPath)
-  writeFileSync(
-    pkgPath,
-    JSON.stringify(sortPackageJson(data), null, 2),
-  )
+  writeFileSync(pkgPath, JSON.stringify(sortPackageJson(data), null, 2))
 }

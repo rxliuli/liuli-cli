@@ -29,7 +29,9 @@ export abstract class BasePlugin {
   /**
    * 可选择的集成其他插件时的操作
    */
-  integrated() {}
+  integrated() {
+    //可以选择是否实现
+  }
 
   /**
    * 处理函数

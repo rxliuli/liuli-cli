@@ -6,7 +6,7 @@ import { readJSONSync, writeJSONSync } from 'fs-extra'
  * @param file
  * @param fn
  */
-export function updateJSONFile(file: string, fn: (json: any) => any) {
+export function updateJSONFile<T>(file: string, fn: (json: any) => any) {
   const path = resolve(file)
   const json = readJSONSync(path)
   const res = fn(json)

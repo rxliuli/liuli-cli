@@ -40,10 +40,10 @@ async function promptInput(plugin: typeof JSPlugin | typeof TSPlugin) {
       message: '请选择需要的组件',
       suffix: '请按下空格',
       choices: [...Object.keys(plugin)]
-        .filter((k) => isNaN(k as any))
+        .filter((k: string | number) => typeof k === 'string')
         .map((k, i) => ({
           name: k,
-          value: plugin[k as any],
+          value: plugin[k as keyof typeof plugin],
           checked: i === 0,
         })),
     },
@@ -65,7 +65,7 @@ async function promptLicense(): Promise<LicenseType> {
       })),
     },
   ])
-  return options as any
+  return options
 }
 
 /**
@@ -84,7 +84,7 @@ async function promptTemplateType(): Promise<TemplateType> {
       })),
     },
   ])
-  return type as any
+  return type
 }
 
 /**

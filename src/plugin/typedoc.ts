@@ -17,7 +17,7 @@ export class TypeDocPlugin extends BasePlugin {
   }
   handle(): void {
     //更新 package.json
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) =>
       merge(json, pkgJSON),
     )
     //拷贝配置文件

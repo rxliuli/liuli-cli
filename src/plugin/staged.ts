@@ -27,7 +27,7 @@ export class StagedPlugin extends BasePlugin {
     ) {
       throw new Error('初始化 staged 必须包含 ESLint 或 Prettier 插件！')
     }
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) =>
       merge(json, pkgJSON),
     )
     copySync(
@@ -41,11 +41,11 @@ export class StagedPlugin extends BasePlugin {
         projectLintStageName,
       )
       if (!this.plugins.includes(JSPlugin.Prettier)) {
-        updateJSONFile(projectLintStageName, json => {
+        updateJSONFile(projectLintStageName, (json) => {
           json.linters['src/**/*.js'].splice(1, 1)
         })
       } else if (!this.plugins.includes(JSPlugin.ESLint)) {
-        updateJSONFile(projectLintStageName, json => {
+        updateJSONFile(projectLintStageName, (json) => {
           json.linters['src/**/*.js'].splice(0, 1)
         })
       }

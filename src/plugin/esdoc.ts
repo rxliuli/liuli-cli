@@ -15,7 +15,7 @@ export class ESDocPlugin extends BasePlugin {
   }
   handle(): void {
     // 拷贝配置文件
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) =>
       merge(json, pkgJSON),
     )
     // 拷贝配置文件

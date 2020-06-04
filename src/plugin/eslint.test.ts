@@ -44,7 +44,7 @@ describe('测试 eslint js 插件', () => {
     })
   })
 
-  describe('单独测试', function() {
+  describe('单独测试', function () {
     let eslintPlugin: ESLintPlugin
     beforeEach(() => {
       const path = initTestEnv()

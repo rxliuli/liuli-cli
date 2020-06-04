@@ -16,7 +16,7 @@ export class ESLintPlugin extends BasePlugin {
   }
   handle(): void {
     // 修改 JSON 部分
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) =>
       merge(json, pkgJSON),
     )
     // 拷贝配置文件
@@ -41,11 +41,11 @@ export class ESLintPlugin extends BasePlugin {
   }
   // 处理与 jest 的集成
   private integratedJest() {
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) =>
       merge(json, jestPkgJSON),
     )
 
-    updateJSONFile(resolve(this.projectDir, this.eslintName), json => {
+    updateJSONFile(resolve(this.projectDir, this.eslintName), (json) => {
       json.env = {
         ...json.env,
         'jest/globals': true,
@@ -55,10 +55,10 @@ export class ESLintPlugin extends BasePlugin {
   // 处理与 prettier 的集成
   private integratedPrettier() {
     // 更新依赖
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) =>
       merge(json, prettierPkgJSON),
     )
-    updateJSONFile(resolve(this.projectDir, this.eslintName), json => {
+    updateJSONFile(resolve(this.projectDir, this.eslintName), (json) => {
       json.extends = [...json.extends, 'plugin:prettier/recommended']
     })
   }

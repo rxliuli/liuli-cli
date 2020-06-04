@@ -18,7 +18,7 @@ export function initProject(projectDir: string, type: TemplateType) {
       ? 'typescript'
       : 'cli'
   copySync(resolveResource(`../template/${templateDir}`), projectDir)
-  updateJSONFile(resolve(projectDir, 'package.json'), json => {
+  updateJSONFile(resolve(projectDir, 'package.json'), (json) => {
     const oldName = json.name
     const projectPathList = projectDir.split(sep)
     json.name = projectPathList[projectPathList.length - 1]

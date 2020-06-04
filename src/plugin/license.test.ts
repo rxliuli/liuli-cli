@@ -1,7 +1,7 @@
 import { LicensePlugin } from './license'
 import { initTestEnv } from '../util/initTestEnv'
 
-describe('测试 prettier 插件', function() {
+describe('测试 prettier 插件', function () {
   let path: string
   beforeEach(() => {
     path = initTestEnv()

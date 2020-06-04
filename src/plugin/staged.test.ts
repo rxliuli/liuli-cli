@@ -4,12 +4,12 @@ import { PrettierPlugin } from './prettier'
 import { JSPlugin } from './base/constant'
 import { initTestEnv } from '../util/initTestEnv'
 
-describe('测试 staged', function() {
+describe('测试 staged', function () {
   let path: string
   beforeEach(() => {
     path = initTestEnv()
   })
-  it('一般情况', function() {
+  it('一般情况', function () {
     const prettierPlugin = new PrettierPlugin()
     prettierPlugin.projectDir = path
     prettierPlugin.handle()
