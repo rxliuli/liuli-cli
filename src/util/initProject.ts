@@ -2,6 +2,7 @@ import { resolve, sep } from 'path'
 import { copySync, removeSync } from 'fs-extra'
 import { updateJSONFile } from './updateJSONFile'
 import { TemplateType } from './TemplateType'
+import { resolveResource } from '../resolveResource'
 
 /**
  * 一些初始化操作，修改项目名
@@ -16,7 +17,7 @@ export function initProject(projectDir: string, type: TemplateType) {
       : type === TemplateType.TypeScript
       ? 'typescript'
       : 'cli'
-  copySync(resolve(__dirname, `../template/${templateDir}`), projectDir)
+  copySync(resolveResource(`../template/${templateDir}`), projectDir)
   updateJSONFile(resolve(projectDir, 'package.json'), json => {
     const oldName = json.name
     const projectPathList = projectDir.split(sep)

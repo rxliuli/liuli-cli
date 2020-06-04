@@ -1,0 +1,8 @@
+{
+  "out": "docs",
+  "includes": "src",
+  "exclude": ["src/**/*.test.ts"],
+  "logger": "console",
+  "theme": "node_modules/eledoc/bin/default/",
+  "ignoreCompilerErrors": true
+}
