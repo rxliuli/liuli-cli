@@ -1,5 +1,5 @@
 import pkgJSON from './resource/jest/package.json'
-import { copySync, readFileSync, readJSONSync, writeJSONSync } from 'fs-extra'
+import { copySync, readFileSync } from 'fs-extra'
 import { resolve, sep } from 'path'
 import { last } from 'lodash'
 import { writeFileSync } from 'fs'
@@ -18,7 +18,7 @@ export class JestPlugin extends BasePlugin {
   handle(): void {
     // 修改 JSON 部分
     resolve(this.projectDir, 'package.json')
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) =>
       merge(json, pkgJSON),
     )
     // 拷贝配置文件

@@ -1,6 +1,4 @@
-// @ts-ignore
 import pkg from '..'
-// @ts-ignore
 import { hello } from '..'
 
 describe('test', () => {
