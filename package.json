@@ -1,6 +1,6 @@
 {
   "name": "liuli-cli",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "一个 JavaScript/TypeScript SDK cli 工具",
   "main": "bin/li.js",
   "author": "rxliuli",
@@ -12,9 +12,7 @@
     "li": "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
     "dev": "nodemon -w src/li.ts --exec \"yarn li\"",
     "build": "rollup -c rollup.config.js && yarn copy src/plugin/resource/ bin/resource/",
-    "test:create": "yarn li create test/ts-example",
-    "link:add": "yarn link",
-    "link:remove": "yarn unlink"
+    "test:create": "yarn li create test/ts-example"
   },
   "devDependencies": {
     "@babel/types": "^7.6.3",

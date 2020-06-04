@@ -1,8 +1,11 @@
 {
   "scripts": {
-    "docs": "typedoc --out docs src --exclude src/**/*.test.ts && yarn copy README.md docs/ && yarn copy .nojekyll docs/"
+    "docs": "typedoc --options typedoc.json && yarn copy README.md docs/ && yarn copy .nojekyll docs/",
+    "docs:server": "yarn docs && live-server docs"
   },
   "devDependencies": {
-    "typedoc": "^0.15.3"
+    "eledoc": "^0.2.1",
+    "typedoc": "^0.15.3",
+    "live-server": "^1.2.1"
   }
 }

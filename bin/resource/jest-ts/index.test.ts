@@ -1,5 +1,5 @@
-const pkg = require('typescript-template')
-const { hello } = require('typescript-template')
+import pkg from '..'
+import { hello } from '..'
 
 describe('test', () => {
   it('simple example', () => {
