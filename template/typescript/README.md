@@ -6,8 +6,10 @@
 
 ## npm scripts
 
-- `dev`: 打包脚本并监听文件更改
 - `build`: 打包脚本
 - `clean`: 清理打包脚本目录
-- `link:add`: 将包软链接到本地便于测试
-- `link:remove`: 删除包的软链接
+- `dev`: 打包脚本并监听文件更改
+- `docs`: 生成 api 文档
+- `docs:server`: 生成 api 文档并在本地服务器查看
+- `format`: 格式化代码
+- `test`: 运行全部的测试

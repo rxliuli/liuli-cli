@@ -11,13 +11,13 @@
 - [x] jest 单元测试支持
 - [x] 代码压缩支持
 - [x] babel 支持
-- [ ] ts 支持
+- [x] ts 支持
 - [x] linter 支持
 - [x] prettier 格式化支持
-- [ ] git 钩子支持
-- [ ] JSconfig/tsconfig 支持
+- [x] git 钩子支持
+- [x] JSconfig/tsconfig 支持
 - [x] esdoc
-- [ ] typedoc
+- [x] typedoc
 - [ ] 自定义模板
 - [x] 许可证选择支持
 
