@@ -17,7 +17,7 @@ export class JestTSPlugin extends BasePlugin {
   }
   handle(): void {
     // 修改 JSON 部分
-    updateJSONFile(resolve(this.projectDir, 'package.json'), json =>
+    updateJSONFile(resolve(this.projectDir, 'package.json'), (json) =>
       merge(json, pkgJSON),
     )
     // 拷贝配置文件
@@ -34,9 +34,5 @@ export class JestTSPlugin extends BasePlugin {
     // 拷贝一个基本的测试文件
     const path = resolve(this.projectDir, 'test', this.testName)
     copySync(resolve(__dirname, 'resource/jest-ts', this.testName), path)
-    const data = readFileSync(path, {
-      encoding: 'utf8',
-    }).replace(/typescript-template/g, last(this.projectDir.split(sep))!)
-    writeFileSync(path, data)
   }
 }
