@@ -14,6 +14,9 @@
     "build": "rollup -c rollup.config.js && yarn copy src/plugin/resource/ bin/resource/",
     "test:create": "yarn li create test/ts-example"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "@babel/types": "^7.6.3",
     "@types/app-root-path": "^1.2.4",
