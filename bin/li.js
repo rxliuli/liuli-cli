@@ -43,7 +43,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 var name = "liuli-cli";
-var version = "0.2.0";
+var version = "0.2.2";
 var description = "一个 JavaScript/TypeScript SDK cli 工具";
 var main = "bin/li.js";
 var author = "rxliuli";
@@ -56,6 +56,9 @@ var scripts = {
 	dev: "nodemon -w src/li.ts --exec \"yarn li\"",
 	build: "rollup -c rollup.config.js && yarn copy src/plugin/resource/ bin/resource/",
 	"test:create": "yarn li create test/ts-example"
+};
+var publishConfig = {
+	registry: "https://registry.npmjs.org/"
 };
 var devDependencies = {
 	"@babel/types": "^7.6.3",
@@ -107,6 +110,7 @@ var appInfo = {
 	license: license,
 	bin: bin,
 	scripts: scripts,
+	publishConfig: publishConfig,
 	devDependencies: devDependencies,
 	dependencies: dependencies
 };
