@@ -1,6 +1,6 @@
 {
   "name": "liuli-cli",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "一个 JavaScript/TypeScript SDK cli 工具",
   "main": "bin/li.js",
   "author": "rxliuli",
