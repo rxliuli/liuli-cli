@@ -40,7 +40,7 @@ async function promptInput(plugin: typeof JSPlugin | typeof TSPlugin) {
       message: '请选择需要的组件',
       suffix: '请按下空格',
       choices: [...Object.keys(plugin)]
-        .filter((k: string | number) => typeof k === 'string')
+        .filter((k) => isNaN(Number.parseInt(k)))
         .map((k, i) => ({
           name: k,
           value: plugin[k as keyof typeof plugin],

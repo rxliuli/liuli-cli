@@ -55,6 +55,8 @@ var scripts = {
 	li: "ts-node -O \"{\\\"module\\\": \\\"commonjs\\\"}\" src/li.ts",
 	dev: "nodemon -w src/li.ts --exec \"yarn li\"",
 	build: "rollup -c rollup.config.js && yarn copy src/plugin/resource/ bin/resource/",
+	lint: "eslint src --fix --ext .ts",
+	format: "prettier --write src/**/*.ts",
 	"test:create": "yarn li create test/ts-example"
 };
 var publishConfig = {
@@ -72,13 +74,17 @@ var devDependencies = {
 	"@types/rollup": "^0.54.0",
 	"@types/shelljs": "^0.8.5",
 	"@types/username": "^3.0.0",
+	"@typescript-eslint/eslint-plugin": "^3.1.0",
+	"@typescript-eslint/parser": "^3.1.0",
 	"app-root-path": "^3.0.0",
 	"copy-dir-cli": "^0.0.3",
+	eslint: "^7.1.0",
+	"eslint-config-prettier": "^6.5.0",
 	jest: "^24.9.0",
 	"jest-extended": "^0.11.2",
 	nodeman: "^1.1.2",
 	nodemon: "^1.19.4",
-	prettier: "^1.18.2",
+	prettier: "^2.0.5",
 	rollup: "^1.26.2",
 	"rollup-plugin-json": "^4.0.0",
 	"rollup-plugin-typescript2": "^0.24.3",
@@ -178,7 +184,7 @@ function initProject(projectDir, type) {
             ? 'typescript'
             : 'cli';
     fsExtra.copySync(resolveResource(`../template/${templateDir}`), projectDir);
-    updateJSONFile(path.resolve(projectDir, 'package.json'), json => {
+    updateJSONFile(path.resolve(projectDir, 'package.json'), (json) => {
         const oldName = json.name;
         const projectPathList = projectDir.split(path.sep);
         json.name = projectPathList[projectPathList.length - 1];
@@ -216,7 +222,9 @@ class BasePlugin {
     /**
      * 可选择的集成其他插件时的操作
      */
-    integrated() { }
+    integrated() {
+        //可以选择是否实现
+    }
 }
 
 /**
@@ -250,7 +258,7 @@ class BabelPlugin extends BasePlugin {
         super(JSPlugin.Babel);
     }
     handle() {
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, pkgJSON));
         // 复制文件
         const babelName = '.babelrc';
         fsExtra.copySync(path.resolve(__dirname, 'resource/babel', babelName), path.resolve(this.projectDir, babelName));
@@ -267,7 +275,7 @@ class BabelPlugin extends BasePlugin {
         });
         const ast = core.parseSync(str);
         // 找到最后一个 import 的位置，没有找到则放置到 0
-        const index = lodash.findLastIndex(ast.program.body, node => types.isImportDeclaration(node)) + 1;
+        const index = lodash.findLastIndex(ast.program.body, (node) => types.isImportDeclaration(node)) + 1;
         // 添加 import
         ast.program.body = [
             ...ast.program.body.slice(0, index),
@@ -275,9 +283,8 @@ class BabelPlugin extends BasePlugin {
             ...ast.program.body.slice(index),
         ];
         // 修改默认导出的值
-        const exportDefaultNode = ast.program.body.find(node => types.isExportDefaultDeclaration(node));
-        const plugins = exportDefaultNode.declaration.properties.find(node => types.isObjectProperty(node) &&
-            node.key.name === 'plugins').value;
+        const exportDefaultNode = ast.program.body.find((node) => types.isExportDefaultDeclaration(node));
+        const plugins = exportDefaultNode.declaration.properties.find((node) => types.isObjectProperty(node) && node.key.name === 'plugins').value;
         plugins.elements.push(babelPluginConfig);
         fsExtra.writeFileSync(rollupConfigPath, core.transformFromAstSync(ast).code, {
             encoding: 'utf8',
@@ -363,7 +370,7 @@ class ESLintPlugin extends BasePlugin {
     }
     handle() {
         // 修改 JSON 部分
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$2));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, pkgJSON$2));
         // 拷贝配置文件
         const genDir = path.resolve(__dirname, 'resource/eslint');
         fsExtra.copySync(path.resolve(genDir, this.eslintName), path.resolve(this.projectDir, this.eslintName));
@@ -380,16 +387,16 @@ class ESLintPlugin extends BasePlugin {
     }
     // 处理与 jest 的集成
     integratedJest() {
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, jestPkgJSON));
-        updateJSONFile(path.resolve(this.projectDir, this.eslintName), json => {
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, jestPkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, this.eslintName), (json) => {
             json.env = Object.assign(Object.assign({}, json.env), { 'jest/globals': true });
         });
     }
     // 处理与 prettier 的集成
     integratedPrettier() {
         // 更新依赖
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, prettierPkgJSON));
-        updateJSONFile(path.resolve(this.projectDir, this.eslintName), json => {
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, prettierPkgJSON));
+        updateJSONFile(path.resolve(this.projectDir, this.eslintName), (json) => {
             json.extends = [...json.extends, 'plugin:prettier/recommended'];
         });
     }
@@ -414,7 +421,7 @@ class PrettierPlugin extends BasePlugin {
     }
     handle() {
         //更新 package.json
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$3));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, pkgJSON$3));
         //拷贝配置文件
         fsExtra.copySync(path.resolve(__dirname, 'resource/prettier', this.prettierName), path.resolve(this.projectDir, this.prettierName));
     }
@@ -441,7 +448,7 @@ class ESDocPlugin extends BasePlugin {
     }
     handle() {
         // 拷贝配置文件
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$4));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, pkgJSON$4));
         // 拷贝配置文件
         const configName = '.esdoc.json';
         fsExtra.copySync(path.resolve(__dirname, 'resource/esdoc', configName), path.resolve(this.projectDir, configName));
@@ -472,18 +479,18 @@ class StagedPlugin extends BasePlugin {
             !this.plugins.includes(TSPlugin.Prettier)) {
             throw new Error('初始化 staged 必须包含 ESLint 或 Prettier 插件！');
         }
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$5));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, pkgJSON$5));
         fsExtra.copySync(path.resolve(__dirname, 'resource/staged', this.huskyName), path.resolve(this.projectDir, this.huskyName));
         const projectLintStageName = path.resolve(this.projectDir, this.lintStagedName);
         if (this.type === TemplateType.JavaScript) {
             fsExtra.copySync(path.resolve(__dirname, 'resource/staged', this.lintStagedName), projectLintStageName);
             if (!this.plugins.includes(JSPlugin.Prettier)) {
-                updateJSONFile(projectLintStageName, json => {
+                updateJSONFile(projectLintStageName, (json) => {
                     json.linters['src/**/*.js'].splice(1, 1);
                 });
             }
             else if (!this.plugins.includes(JSPlugin.ESLint)) {
-                updateJSONFile(projectLintStageName, json => {
+                updateJSONFile(projectLintStageName, (json) => {
                     json.linters['src/**/*.js'].splice(0, 1);
                 });
             }
@@ -502,7 +509,7 @@ class LicensePlugin extends BasePlugin {
         super(JSPlugin.License);
     }
     handle() {
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => {
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => {
             json.license = this.license;
         });
         createLicense(this.projectDir, this.license, {
@@ -590,7 +597,7 @@ class TypeDocPlugin extends BasePlugin {
     }
     handle() {
         //更新 package.json
-        updateJSONFile(path.resolve(this.projectDir, 'package.json'), json => merge(json, pkgJSON$7));
+        updateJSONFile(path.resolve(this.projectDir, 'package.json'), (json) => merge(json, pkgJSON$7));
         //拷贝配置文件
         fsExtra.copySync(path.resolve(__dirname, 'resource/typedoc', this.noJekyllName), path.resolve(this.projectDir, this.noJekyllName));
         //拷贝配置文件
@@ -660,7 +667,7 @@ function promptInput(plugin) {
                 message: '请选择需要的组件',
                 suffix: '请按下空格',
                 choices: [...Object.keys(plugin)]
-                    .filter((k) => isNaN(k))
+                    .filter((k) => isNaN(Number.parseInt(k)))
                     .map((k, i) => ({
                     name: k,
                     value: plugin[k],
