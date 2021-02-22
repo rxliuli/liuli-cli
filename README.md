@@ -1,5 +1,7 @@
 # liuli-cli
 
+> 已经被 [@liuli-util/cli](https://github.com/rxliuli/liuli-util/blob/master/libs/cli/README.md) 替代
+
 ## 简介
 
 一个 JavaScript/TypeScript SDK cli 工具，覆盖整个 SDK 的创建、测试、打包、部署、文档生成这几个周期，避免在每个项目都复制一堆的配置文件。
